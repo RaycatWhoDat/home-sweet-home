@@ -65,9 +65,6 @@
          (defvar oauth--token-data ())
          (defvar url-callback-function ())
          (defvar url-callback-arguments ())))
-
-     ;; Load tangled config
-     (load (expand-file-name "config.el" user-emacs-directory) t)
    #+END_SRC
 
 *** Macros
@@ -78,6 +75,12 @@
        (dolist (package packages)
          (push `(use-package ,package) results))
        `(progn ,@(nreverse results))))
+#+END_SRC
+
+*** Initialization Postscript
+#+BEGIN_SRC emacs-lisp :tangle init.el
+  ;; Load tangled config
+  (load (expand-file-name "config.el" user-emacs-directory) t)
 #+END_SRC
 
 *** Configuration Preamble
