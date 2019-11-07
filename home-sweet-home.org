@@ -661,158 +661,158 @@
 
 ** Quality of Life
    #+BEGIN_SRC emacs-lisp
-  (require 'ls-lisp)
+     (require 'ls-lisp)
 
-  (setq-default indent-tabs-mode nil
-                auto-hscroll-mode nil)
+     (setq-default indent-tabs-mode nil
+                   auto-hscroll-mode nil)
 
-  (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups/"))))
-  (setq org-mode-startup-message "")
-  (setq x-select-enable-clipboard t)
+     (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups/"))))
+     (setq org-mode-startup-message "")
+     (setq x-select-enable-clipboard t)
 
-  (fset 'yes-or-no-p 'y-or-n-p)
+     (fset 'yes-or-no-p 'y-or-n-p)
 
-  (setq confirm-kill-emacs 'y-or-n-p)
+     (setq confirm-kill-emacs 'y-or-n-p)
 
-  ;; Supposedly, this fixes some weirdness with the mark's behavior.
-  (delete-selection-mode t)
+     ;; Supposedly, this fixes some weirdness with the mark's behavior.
+     (when (fboundp 'delete-selection-mode)
+       (delete-selection-mode t))
 
-  (when (fboundp 'winner-mode)
-    (winner-mode 1))
+     (when (fboundp 'winner-mode)
+       (winner-mode 1))
 
-  (setq org-modules '(org-habit
-                      org-irc
-                      org-eval
-                      org-expiry
-                      org-interactive-query
-                      org-man
-                      org-collector
-                      org-panel
-                      org-screen))
+     (setq org-modules '(org-habit
+                         org-irc
+                         org-eval
+                         org-expiry
+                         org-interactive-query
+                         org-man
+                         org-collector
+                         org-panel
+                         org-screen))
 
-  (setq network-security-level 'low)
+     (setq network-security-level 'low)
 
-  (setenv "PAGER" "cat")
-  (setenv "BROWSER" "chromium-browser")
-  (setenv "EDITOR" "emacsclient")
-  (setenv "PATH" (concat "/usr/local/bin:/usr/local/sbin:" (getenv "PATH") ":/Library/TeX/texbin"))
+     (setenv "PAGER" "cat")
+     (setenv "BROWSER" "chromium-browser")
+     (setenv "EDITOR" "emacsclient")
+     (setenv "PATH" (concat "/usr/local/bin:/usr/local/sbin:" (getenv "PATH") ":/Library/TeX/texbin"))
 
-  (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n\"")
-  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+     (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n\"")
+     (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
 
-  (add-hook 'term-exec-hook (lambda ()
-                              (let* ((buff (current-buffer))
-                                     (proc (get-buffer-process buff)))
-                                (lexical-let ((buff buff))
-                                  (set-process-sentinel proc (lambda (process event)
-                                                               (if (string= event "finished\n")                      
-                                                                   (kill-buffer buff))))))))
+     (add-hook 'term-exec-hook (lambda ()
+                                 (let* ((buff (current-buffer))
+                                        (proc (get-buffer-process buff)))
+                                   (lexical-let ((buff buff))
+                                     (set-process-sentinel proc (lambda (process event)
+                                                                  (if (string= event "finished\n")                      
+                                                                      (kill-buffer buff))))))))
 
+     (setq frame-title-format
+           '((:eval (if (buffer-file-name)
+                        (abbreviate-file-name (buffer-file-name))
+                      "%b"))))
 
-  (setq frame-title-format
-        '((:eval (if (buffer-file-name)
-                     (abbreviate-file-name (buffer-file-name))
-                   "%b"))))
+     (setq hippie-expand-try-functions-list '(try-expand-dabbrev
+                                              try-expand-dabbrev-all-buffers
+                                              try-expand-dabbrev-from-kill
+                                              try-complete-file-name-partially
+                                              try-complete-file-name
+                                              try-expand-all-abbrevs
+                                              try-expand-list
+                                              try-expand-line
+                                              try-complete-lisp-symbol-partially
+                                              try-complete-lisp-symbol))
 
-  (setq hippie-expand-try-functions-list '(try-expand-dabbrev
-                                           try-expand-dabbrev-all-buffers
-                                           try-expand-dabbrev-from-kill
-                                           try-complete-file-name-partially
-                                           try-complete-file-name
-                                           try-expand-all-abbrevs
-                                           try-expand-list
-                                           try-expand-line
-                                           try-complete-lisp-symbol-partially
-                                           try-complete-lisp-symbol))
+     ;; For the dark menu bar.
+     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+     (add-to-list 'default-frame-alist '(ns-appearance . dark))
 
-  ;; For the dark menu bar.
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+     (when (fboundp 'menu-bar-mode) (menu-bar-mode 0))
+     (when (fboundp 'tool-bar-mode) (tool-bar-mode 0))
+     (when (fboundp 'scroll-bar-mode) (scroll-bar-mode 0))
+     (when (fboundp 'display-time-mode) (display-time-mode t))
 
-  (menu-bar-mode 0)
-  (tool-bar-mode 0)
-  (scroll-bar-mode 0)
-  (display-time-mode t)
+     ;; (setq deactivate-mark nil)
+     (setq auto-window-vscroll nil)
+     (setq transient-mark-mode t)
 
-  ;; (setq deactivate-mark nil)
-  (setq auto-window-vscroll nil)
-  (setq transient-mark-mode t)
+     ;; I prefer Iosevka Term, but it can be replaced with something else.
+     ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
+     (when (find-font (font-spec :name "Iosevka Term"))
+       (set-face-attribute 'default nil :font "Iosevka Term-12"))
 
-  ;; I prefer Iosevka Term, but it can be replaced with something else.
-  ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
-  (when (find-font (font-spec :name "Iosevka Term"))
-    (set-face-attribute 'default nil :font "Iosevka Term-12"))
+     (setq comint-scroll-to-bottom-on-input t
+           comint-scroll-to-bottom-on-output nil
+           create-lockfiles nil
+           disabled-command-function nil
+           display-time-24hr-format t
+           eshell-error-if-no-glob t
+           eshell-hist-ignoredups t
+           eshell-list-files-after-cd t
+           eshell-ls-initial-args "-alh"
+           eshell-prefer-lisp-functions nil
+           eshell-save-history-on-exit t
+           eshell-scroll-to-bottom-on-input t
+           eshell-scroll-to-bottom-on-output nil
+           gc-cons-threshold 50000000
+           inhibit-startup-message t
+           initial-major-mode 'fundamental-mode
+           initial-scratch-message org-mode-startup-message
+           js-indent-level 4
+           kill-whole-line t
+           large-file-warning-threshold 100000000
+           load-prefer-newer t
+           ls-lisp-use-insert-directory-program nil
+           next-line-add-newlines t
+           org-checkbox-hierarchical-statistics nil
+           org-confirm-babel-evaluate nil
+           sentence-end-double-space nil
+           use-dialog-box nil
+           visible-bell t)
 
-  (setq comint-scroll-to-bottom-on-input t
-        comint-scroll-to-bottom-on-output nil
-        create-lockfiles nil
-        disabled-command-function nil
-        display-time-24hr-format t
-        eshell-error-if-no-glob t
-        eshell-hist-ignoredups t
-        eshell-list-files-after-cd t
-        eshell-ls-initial-args "-alh"
-        eshell-prefer-lisp-functions nil
-        eshell-save-history-on-exit t
-        eshell-scroll-to-bottom-on-input t
-        eshell-scroll-to-bottom-on-output nil
-        gc-cons-threshold 50000000
-        inhibit-startup-message t
-        initial-major-mode 'fundamental-mode
-        initial-scratch-message org-mode-startup-message
-        js-indent-level 4
-        kill-whole-line t
-        large-file-warning-threshold 100000000
-        load-prefer-newer t
-        ls-lisp-use-insert-directory-program nil
-        next-line-add-newlines t
-        org-checkbox-hierarchical-statistics nil
-        org-confirm-babel-evaluate nil
-        sentence-end-double-space nil
-        use-dialog-box nil
-        visible-bell t)
+     (defun setup-tide-mode ()
+       (interactive)
+       (tide-setup)
+       (setq flycheck-check-syntax-automatically '(idle-change save mode-enabled))
+       (setq flycheck-idle-change-delay 0.2)
+       (flycheck-mode 1)
+       (eldoc-mode 1)
+       (tide-hl-identifier-mode 1)
+       (company-mode 1))
 
-  (defun setup-tide-mode ()
-    (interactive)
-    (tide-setup)
-    (setq flycheck-check-syntax-automatically '(idle-change save mode-enabled))
-    (setq flycheck-idle-change-delay 0.2)
-    (flycheck-mode 1)
-    (eldoc-mode 1)
-    (tide-hl-identifier-mode 1)
-    (company-mode 1))
+     (when (fboundp 'persp-mode) (persp-mode 1))
 
-  (persp-mode 1)
+     (add-hook 'html-mode-hook
+               (lambda ()
+                 ;; Default indentation is usually 2 spaces, changing to 4.
+                 (set (make-local-variable 'sgml-basic-offset) 4)))
 
-  (add-hook 'html-mode-hook
-            (lambda ()
-              ;; Default indentation is usually 2 spaces, changing to 4.
-              (set (make-local-variable 'sgml-basic-offset) 4)))
+     (add-hook 'java-mode-hook (lambda ()
+                                 (setq c-basic-offset 4
+                                       tab-width 4
+                                       indent-tabs-mode t)))
 
-  (add-hook 'java-mode-hook (lambda ()
-                              (setq c-basic-offset 4
-                                    tab-width 4
-                                    indent-tabs-mode t)))
+     (add-hook 'before-save-hook 'tide-format-before-save)
+     (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
-  (add-hook 'before-save-hook 'tide-format-before-save)
-  (add-hook 'typescript-mode-hook #'setup-tide-mode)
+     ;; Trigger completion immediately.
+     (setq company-idle-delay 0)
 
-  ;; Trigger completion immediately.
-  (setq company-idle-delay 0)
+     ;; Number the candidates (use M-1, M-2 etc to select completions).
+     (setq company-show-numbers t)
 
-  ;; Number the candidates (use M-1, M-2 etc to select completions).
-  (setq company-show-numbers t)
+     ;; Use the tab-and-go frontend.
+     ;; Allows TAB to select and complete at the same time.
+     (company-tng-configure-default)
+     (setq company-frontends
+           '(company-tng-frontend
+             company-pseudo-tooltip-frontend
+             company-echo-metadata-frontend))
 
-  ;; Use the tab-and-go frontend.
-  ;; Allows TAB to select and complete at the same time.
-  (company-tng-configure-default)
-  (setq company-frontends
-        '(company-tng-frontend
-          company-pseudo-tooltip-frontend
-          company-echo-metadata-frontend))
-
-  (setq counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s .")
-  (setq lisp-indent-offset 2)
+     (setq counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s .")
+     (setq lisp-indent-offset 2)
 #+END_SRC
 ** Dotfiles/Scripts
 #+BEGIN_SRC shell :tangle ~/.zshrc
