@@ -1,0 +1,13 @@
+#+TITLE: Brag Sheet
+
+* Oranj (12/13/17 - 11/8/19)
+- Created a script that ping each endpoint in a VPC for a health check
+- Created "Lightning Talks"
+- Leveled up the state of JavaScript by introducing best practices and patterns
+- Pioneered many new web components in a type-safe manner via TypeScript
+- Started an effort to consolidate types on the front-end
+- Created a project (Socket Hub) and maintained it from conception to production
+- Created a prototype in three days to facilitate global search and aid in compliance reporting
+- Created the code challenge for JavaScript-inclined devs
+- Mentored several interns and co-op developers to prepare them for upcoming initiatives
+- Wrote a suite of automated tests to alleviate the pressure of regression testing
