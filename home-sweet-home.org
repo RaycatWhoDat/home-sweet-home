@@ -27,6 +27,8 @@
 
      (require 'package)
      (setq package-enable-at-startup nil)
+     ;; In the event you get a bunch of 'failed to download ... archive' issues, uncomment this line.
+     ;; (setq package-check-signature nil)
 
      ;; Add software sources
      (unless (assoc-default "marmalade" package-archives)
