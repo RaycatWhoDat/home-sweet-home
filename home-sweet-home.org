@@ -26,9 +26,8 @@
      ;; Making any changes to this file may result in those changes being discarded.
 
      (require 'package)
-     (setq package-enable-at-startup nil)
-     ;; In the event you get a bunch of 'failed to download ... archive' issues, uncomment this line.
-     ;; (setq package-check-signature nil)
+     (setq package-enable-at-startup nil
+       package-check-signature nil)
 
      ;; Add software sources
      (unless (assoc-default "marmalade" package-archives)
@@ -818,12 +817,6 @@
 #+END_SRC
 ** Dotfiles/Scripts
 #+BEGIN_SRC shell :tangle ~/.zshrc
-  # Lines configured by zsh-newuser-install
-  HISTFILE=~/.histfile
-  HISTSIZE=1000
-  SAVEHIST=1000
-  bindkey -e
-  # End of lines configured by zsh-newuser-install
   # The following lines were added by compinstall
   zstyle :compinstall filename "$HOME/.zshrc"
 
@@ -831,15 +824,25 @@
   compinit
   # End of lines added by compinstall
 
-  export NVM_DIR="$HOME/.nvm"
   # . "/usr/local/opt/nvm/nvm.sh"
 
   source "$HOME/minimal.zsh"
   eval "$(fasd --init posix-alias zsh-hook)"
-  export HAXE_STD_PATH="/usr/local/lib/haxe/std"
 
   eval `opam config env`
   # . /Users/rayperry/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+#+END_SRC
+
+#+BEGIN_SRC shell :tangle ~/.zshenv
+  # Lines configured by zsh-newuser-install
+  HISTFILE=~/.histfile
+  HISTSIZE=1000
+  SAVEHIST=1000
+  bindkey -e
+  # End of lines configured by zsh-newuser-install
+
+  export NVM_DIR="$HOME/.nvm"
+  export HAXE_STD_PATH="/usr/local/lib/haxe/std"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
