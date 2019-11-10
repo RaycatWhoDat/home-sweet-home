@@ -26,8 +26,8 @@
      ;; Making any changes to this file may result in those changes being discarded.
 
      (require 'package)
-     (setq package-enable-at-startup nil
-       package-check-signature nil)
+     (setq package-enable-at-startup nil)
+     (setq package-check-signature nil)
 
      ;; Add software sources
      (unless (assoc-default "marmalade" package-archives)
@@ -146,7 +146,8 @@
        :config (eshell-git-prompt-use-theme 'git-radar))
      (use-packages evil evil-easymotion evil-nerd-commenter)
      (use-package exec-path-from-shell
-       :config (progn
+       :config (progn 
+                 (setq exec-path-from-shell-check-startup-files nil)
                  (exec-path-from-shell-initialize)))
      (use-package expand-region)
      (use-package fasd
@@ -164,7 +165,7 @@
                  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
-     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl keycast keyfreq kotlin-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize mmm-mode moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
+     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize mmm-mode moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
      (use-package org-bullets
        :config 
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
