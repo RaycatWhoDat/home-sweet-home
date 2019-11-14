@@ -66,6 +66,18 @@
          (defvar oauth--token-data ())
          (defvar url-callback-function ())
          (defvar url-callback-arguments ())))
+
+     (require 'ansi-color)
+     (defun colorize-compilation-buffer ()
+       (toggle-read-only)
+       (ansi-color-apply-on-region compilation-filter-start (point))
+       (toggle-read-only))
+     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+
+     (require 'eshell)
+     (defun eshell-handle-ansi-color ()
+       (ansi-color-apply-on-region eshell-last-output-start eshell-last-output-end))
+     (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
    #+END_SRC
 
 *** Macros
@@ -135,7 +147,7 @@
                  (load-theme 'doom-one t)
                  (doom-themes-visual-bell-config)
                  (doom-themes-org-config)))
-     (use-packages elcord elsa)
+     (use-packages elcord elmacro elsa)
      (use-package emmet-mode
        :config (progn 
                  (add-hook 'sgml-mode-hook 'emmet-mode)
@@ -184,7 +196,7 @@
                      (org-remove-inline-images)
                      (org-present-show-cursor)
                      (org-present-read-write)))))
-     (use-packages pandoc-mode pdf-tools perl6-mode perspective projectile pug-mode quelpa racket-mode request restclient)
+     (use-packages paradox pandoc-mode pdf-tools perl6-mode perspective projectile pug-mode quelpa racket-mode request restclient)
      (use-package rich-minority
        :config (progn (setq rm-whitelist
                         (format "^ \\(%s\\)$"
@@ -199,7 +211,7 @@
                  (setq sml/no-confirm-load-theme t
                    sml/theme 'respectful)
                  (sml/setup)))
-     (use-packages spinner ssass-mode swiper tide transient transpose-frame tree-mode treemacs treepy trinary typescript-mode)
+     (use-packages spinner ssass-mode suggest swiper tide transient transpose-frame tree-mode treemacs treepy trinary typescript-mode)
      (use-package undo-tree
        :diminish t
        :config (progn
@@ -217,15 +229,18 @@
 ** Configuration
 *** Org Babel
     #+BEGIN_SRC emacs-lisp
-  ;; All the org-babel-languages.
-  (setq loaded-languages '(C emacs-lisp js latex ocaml python shell))
+      ;; All the org-babel-languages.
+      (setq loaded-languages '(C emacs-lisp js latex ocaml python shell))
 
-  ;; Build the org-babel-load-languages list.
-  ;; This uses `loaded-languages' which should be set.
-  (let ((language-list '()))
-    (dolist (language loaded-languages language-list)
-      (add-to-list 'language-list (cons language t) t))
-    (org-babel-do-load-languages 'org-babel-load-languages language-list))
+      ;; Build the org-babel-load-languages list.
+      ;; This uses `loaded-languages' which should be set.
+      (let ((language-list '()))
+        (dolist (language loaded-languages language-list)
+          (add-to-list 'language-list (cons language t) t))
+        (org-babel-do-load-languages 'org-babel-load-languages language-list))
+
+      (load "/home/raycat/.opam/system/share/emacs/site-lisp/tuareg-site-file")
+
     #+END_SRC
     
 *** Keybindings (Hydras)
@@ -743,7 +758,8 @@
      ;; I prefer Iosevka Term, but it can be replaced with something else.
      ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
      (when (find-font (font-spec :name "Iosevka Term"))
-       (set-face-attribute 'default nil :font "Iosevka Term-12"))
+       (set-face-attribute 'default nil :font "Iosevka Term-12")
+       (add-to-list 'default-frame-alist '(font . "Iosevka Term-12")))
 
      (setq comint-scroll-to-bottom-on-input t
            comint-scroll-to-bottom-on-output nil
