@@ -833,6 +833,7 @@
    (setq lisp-indent-offset 2)
 
    (setq org-support-shift-select t)
+   (setq ivy-use-selectable-prompt t)
 #+END_SRC
 
 *** Generic Modes
