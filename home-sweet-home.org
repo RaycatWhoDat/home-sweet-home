@@ -239,7 +239,9 @@
           (add-to-list 'language-list (cons language t) t))
         (org-babel-do-load-languages 'org-babel-load-languages language-list))
 
-      (load "/home/raycat/.opam/system/share/emacs/site-lisp/tuareg-site-file")
+      (--> "/home/raycat/.opam/system/share/emacs/site-lisp/tuareg-site-file"
+        (when (file-exists-p it)
+          (load it)))
 
     #+END_SRC
     
@@ -857,7 +859,6 @@
   compinit
   # End of lines added by compinstall
 
-  export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
