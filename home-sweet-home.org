@@ -124,7 +124,7 @@
      ;; (use-package company-auctex :after auctex)
      (use-packages company-lsp company-tabnine)
      (use-package counsel :diminish t)
-     (use-packages counsel-projectile d-mode)
+     (use-packages counsel-projectile csharp-mode d-mode)
      (use-package deft
        :bind ("<f9>" . deft)
        :config (progn 
@@ -178,6 +178,33 @@
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
      (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize mmm-mode moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
+
+     (use-package omnisharp
+       :config
+       (progn
+         (eval-after-load
+           'company
+           '(add-to-list 'company-backends #'company-omnisharp))
+
+         (defun my-csharp-mode-setup ()
+           (omnisharp-mode)
+           (company-mode)
+           (flycheck-mode)
+
+           (setq indent-tabs-mode nil)
+           (setq c-syntactic-indentation t)
+           (c-set-style "ellemtel")
+           (setq c-basic-offset 4)
+           (setq truncate-lines t)
+           (setq tab-width 4)
+           (setq evil-shift-width 4)
+           (electric-pair-local-mode 1)
+
+           (local-set-key (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
+           (local-set-key (kbd "C-c C-c") 'recompile))
+
+         (add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)))
+    
      (use-package org-bullets
        :config 
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
@@ -240,8 +267,7 @@
         (org-babel-do-load-languages 'org-babel-load-languages language-list))
 
       (--> "/home/raycat/.opam/system/share/emacs/site-lisp/tuareg-site-file"
-        (when (file-exists-p it)
-          (load it)))
+        (when (file-exists-p it) (load it)))
 
     #+END_SRC
     
@@ -582,6 +608,9 @@
 
   (global-set-key (kbd "C-M-x") 'transpose-frame)
 
+  (global-set-key (kbd "«") 'hippie-expand)
+  (global-set-key (kbd "∑") 'kill-ring-save)
+
   (autoload 'zap-up-to-char "misc"
     "Kill up to, but not including ARGth occurrence of CHAR.
 
@@ -879,6 +908,7 @@
 
   export NVM_DIR="$HOME/.nvm"
   export HAXE_STD_PATH="/usr/local/lib/haxe/std"
+  export MONO_GAC_PREFIX="/usr/local"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
