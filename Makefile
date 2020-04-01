@@ -1,4 +1,4 @@
-.PHONY: windows linux-ubuntu linux-other macos tangle
+.PHONY: windows linux-ubuntu linux-other macos tangle nvm
 
 EMACS = emacs
 ESSENTIALS = coreutils moreutils git zsh screen byobu python3 luajit luarocks
@@ -51,3 +51,7 @@ tangle:
 	@emacs -Q --batch --eval '(require (quote org))' --eval '(org-babel-tangle-file "home-sweet-home.org")'
 	@clear
 	@echo "Welcome home."
+
+nvm:
+	@echo "Installing nvm..."
+	@curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
