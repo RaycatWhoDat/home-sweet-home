@@ -907,8 +907,9 @@
   # End of lines configured by zsh-newuser-install
 
   export NVM_DIR="$HOME/.nvm"
-  export HAXE_STD_PATH="/usr/local/lib/haxe/std"
   export MONO_GAC_PREFIX="/usr/local"
+  export LD_LIBRARY_PATH="/usr/local/lib"
+  export HAXE_STD_PATH="/usr/local/lib/haxe/std"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
