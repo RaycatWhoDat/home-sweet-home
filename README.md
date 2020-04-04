@@ -5,7 +5,11 @@ Configurations created with org-mode and orchestrated with a Makefile. Out of th
 
 ## Installation Instructions
 - `git clone <this repo> ~/.emacs.d`
-- `make`
+- `make <'macos' or 'linux-ubuntu'>`
+- `make tangle`
+- `make nvm`
+
+### Afterwards:
 - `chsh -s /bin/zsh <username> # if necessary`
 - `nvm install stable`
 - `nvm use stable`
