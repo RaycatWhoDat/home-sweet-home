@@ -120,7 +120,12 @@
      (use-packages battle-haxe bind-key buffer-move command-log-mode)
 
      (use-package company
-       :config (setq company-tooltip-align-annotations t))
+       :config (progn
+                 (add-to-list 'company-backends #'company-tabnine)
+                 (setq company-idle-delay 0
+                   company-show-numbers t
+                   company-tooltip-align-annotations t)))
+
      ;; (use-package company-auctex :after auctex)
      (use-packages company-lsp company-tabnine)
      (use-package counsel :diminish t)
@@ -156,7 +161,6 @@
      (use-packages emojify erc-twitch)
      (use-package eshell-git-prompt
        :config (eshell-git-prompt-use-theme 'git-radar))
-     (use-packages evil evil-easymotion evil-nerd-commenter)
      (use-package exec-path-from-shell
        :config (progn 
                  (setq exec-path-from-shell-check-startup-files nil)
@@ -177,7 +181,7 @@
                  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
-     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize mmm-mode moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
+     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
 
      (use-package omnisharp
        :config
@@ -204,7 +208,7 @@
            (local-set-key (kbd "C-c C-c") 'recompile))
 
          (add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)))
-    
+
      (use-package org-bullets
        :config 
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
@@ -223,14 +227,14 @@
                      (org-remove-inline-images)
                      (org-present-show-cursor)
                      (org-present-read-write)))))
-     (use-packages paradox pandoc-mode pdf-tools perl6-mode perspective projectile pug-mode quelpa racket-mode request restclient)
+     (use-packages paradox pandoc-mode pdf-tools raku-mode perspective projectile pug-mode quelpa racket-mode request restclient)
      (use-package rich-minority
        :config (progn (setq rm-whitelist
                         (format "^ \\(%s\\)$"
                           (mapconcat #'identity '() "\\|")))
                  (rich-minority-mode 1)))
      (use-packages rjsx-mode rmsbolt rust-mode shelisp)
-     (use-package sly
+     (use-package slime
        :config (progn
                  (setq inferior-lisp-program "/usr/local/bin/sbcl --no-inform")))
      (use-package smart-mode-line
@@ -246,7 +250,9 @@
                    undo-tree-visualizer-timestamps t
                    undo-tree-enable-undo-in-region nil)
                  (global-undo-tree-mode 1)))
-     (use-packages unicode-escape vue-html-mode vue-mode web-mode websocket)
+     (use-packages unicode-escape websocket)
+     (use-package web-mode
+       :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
      (use-package which-key
        :diminish t
        :config (which-key-mode 1))
@@ -910,6 +916,7 @@
   export MONO_GAC_PREFIX="/usr/local"
   export LD_LIBRARY_PATH="/usr/local/lib"
   export HAXE_STD_PATH="/usr/local/lib/haxe/std"
+  export PATH="$HOME/.nimble/bin:$PATH"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
