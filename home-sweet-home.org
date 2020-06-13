@@ -129,7 +129,7 @@
      ;; (use-package company-auctex :after auctex)
      (use-packages company-lsp company-tabnine)
      (use-package counsel :diminish t)
-     (use-packages counsel-projectile csharp-mode d-mode)
+     (use-packages counsel-projectile csharp-mode d-mode dart-mode flutter)
      (use-package deft
        :bind ("<f9>" . deft)
        :config (progn 
@@ -158,7 +158,7 @@
                  (add-hook 'sgml-mode-hook 'emmet-mode)
                  (add-hook 'css-mode-hook 'emmet-mode)
                  (add-hook 'mhtml-mode-hook 'emmet-mode)))
-     (use-packages emojify erc-twitch)
+     (use-packages emojify erc-twitch eshell-toggle)
      (use-package eshell-git-prompt
        :config (eshell-git-prompt-use-theme 'git-radar))
      (use-package exec-path-from-shell
@@ -181,7 +181,7 @@
                  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
-     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
+     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
 
      (use-package omnisharp
        :config
@@ -234,7 +234,7 @@
                           (mapconcat #'identity '() "\\|")))
                  (rich-minority-mode 1)))
      (use-packages rjsx-mode rmsbolt rust-mode shelisp)
-     (use-package slime
+     (use-package sly
        :config (progn
                  (setq inferior-lisp-program "/usr/local/bin/sbcl --no-inform")))
      (use-package smart-mode-line
@@ -242,7 +242,7 @@
                  (setq sml/no-confirm-load-theme t
                    sml/theme 'respectful)
                  (sml/setup)))
-     (use-packages spinner ssass-mode suggest swiper tide transient transpose-frame tree-mode treemacs treepy trinary typescript-mode)
+     (use-packages spinner ssass-mode sudo-edit suggest swiper tide transient transpose-frame tree-mode treemacs treepy trinary typescript-mode)
      (use-package undo-tree
        :diminish t
        :config (progn
@@ -572,7 +572,7 @@
      ("w" hsh-windows/body nil)
      ("C-;" counsel-M-x nil)
      ("C-g" (message "Cancelled HSH.") nil :exit t)
-     ("-" eshell nil)
+     ("-" eshell-toggle nil)
      ("=" settings/open-shell nil)
      ("TAB" shortcuts/alternate-buffers nil))
     #+END_SRC
@@ -626,91 +626,100 @@
 
 *** User-defined functions
     #+BEGIN_SRC emacs-lisp
-   (defun eshell/clear ()
-     (let ((inhibit-read-only t))
-       (erase-buffer)))
+      (defun eshell/clear ()
+        (let ((inhibit-read-only t))
+          (erase-buffer)))
 
-   (defun eshell/d (&rest args)
-     (dired (pop args)))
+      (defun eshell/d (&rest args)
+        "Open Dired here."
+        (dired (pop args)))
 
-   (defun settings/open-shell ()
-     "Opens a shell."
-     (interactive)
-     (ansi-term "/bin/zsh" "zsh"))
+      (defun eshell/ff (&rest args)
+        "Find file."
+        (find-file (pop args)))
 
-   (defun shortcuts/find-file-in-emacs-d (file)
-     "This finds FILE in the .emacs.d directory."
-     (find-file (concat user-emacs-directory file)))
+      (defun eshell/ffo (&rest args)
+        "Find find in other window."
+        (find-file-other-window (pop args)))
 
-   (defun shortcuts/edit-elisp-init-file ()
-     "Opens init.el in the current window."
-     (interactive)
-     (shortcuts/find-file-in-emacs-d "init.el"))
+      (defun settings/open-shell ()
+        "Opens a shell."
+        (interactive)
+        (ansi-term "/bin/zsh" "zsh"))
 
-   (defun shortcuts/edit-org-init-file ()
-     "Opens default-init.org in the current window."
-     (interactive)
-     (shortcuts/find-file-in-emacs-d "home-sweet-home.org"))
+      (defun shortcuts/find-file-in-emacs-d (file)
+        "This finds FILE in the .emacs.d directory."
+        (find-file (concat user-emacs-directory file)))
 
-   (defun shortcuts/kill-this-buffer ()
-     "Kill the current buffer."
-     (interactive)
-     (kill-buffer (current-buffer)))
+      (defun shortcuts/edit-elisp-init-file ()
+        "Opens init.el in the current window."
+        (interactive)
+        (shortcuts/find-file-in-emacs-d "init.el"))
 
-   (defun shortcuts/switch-to-scratch-buffer ()
-     "Switches to the scratch buffer on the current window."
-     (interactive)
-     (switch-to-buffer "*scratch*"))
+      (defun shortcuts/edit-org-init-file ()
+        "Opens default-init.org in the current window."
+        (interactive)
+        (shortcuts/find-file-in-emacs-d "home-sweet-home.org"))
 
-   (defun shortcuts/alternate-buffers ()
-     "Flip-flops the most recently used buffers."
-     (interactive)
-     (switch-to-buffer (other-buffer (current-buffer) 1)))
+      (defun shortcuts/kill-this-buffer ()
+        "Kill the current buffer."
+        (interactive)
+        (kill-buffer (current-buffer)))
 
-   (defun shortcuts/switch-to-minibuffer ()
-     "Switch to minibuffer window."
-     (interactive)
-     (if (active-minibuffer-window)
-         (select-window (active-minibuffer-window))
-       (error "Minibuffer is not active")))
+      (defun shortcuts/switch-to-scratch-buffer ()
+        "Switches to the scratch buffer on the current window."
+        (interactive)
+        (switch-to-buffer "*scratch*"))
 
-   (defun shortcuts/kill-other-buffers ()
-     "Kill all other buffers."
-     (interactive)
-     (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
-     (delete-other-windows)
-     (message "Deleted all other buffers!"))
+      (defun shortcuts/alternate-buffers ()
+        "Flip-flops the most recently used buffers."
+        (interactive)
+        (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-   (defun shortcuts/save-and-recompile ()
-     "Saves all files with changes and compiles."
-     (interactive)
-     (save-some-buffers 1)
-     (recompile))
+      (defun shortcuts/switch-to-minibuffer ()
+        "Switch to minibuffer window."
+        (interactive)
+        (if (active-minibuffer-window)
+          (select-window (active-minibuffer-window))
+          (error "Minibuffer is not active")))
 
-   (defun shortcuts/save-and-recompile-in-place ()
-     "Saves all files with changes and compiles."
-     (interactive)
-     (save-some-buffers 1)
-     (save-window-excursion 
-       (recompile)))
+      (defun shortcuts/kill-other-buffers ()
+        "Kill all other buffers."
+        (interactive)
+        (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
+        (delete-other-windows)
+        (message "Deleted all other buffers!"))
 
-   (defun shortcuts/split-vertically-and-rebalance ()
-     "Splits the window vertically and rebalances all windows."
-     (interactive)
-     (split-window-below)
-     (balance-windows))
+      (defun shortcuts/save-and-recompile ()
+        "Saves all files with changes and compiles."
+        (interactive)
+        (save-some-buffers 1)
+        (recompile))
 
-   (defun shortcuts/split-horizontally-and-rebalance ()
-     "Splits the window horizontally and rebalances all windows."
-     (interactive)
-     (split-window-right)
-     (balance-windows))
+      (defun shortcuts/save-and-recompile-in-place ()
+        "Saves all files with changes and compiles."
+        (interactive)
+        (save-some-buffers 1)
+        (save-window-excursion 
+          (recompile)))
 
-   (defun shortcuts/select-entire-line ()
-     "Selects the entire line."
-     (interactive)
-     (end-of-line)
-     (set-mark (line-beginning-position)))
+      (defun shortcuts/split-vertically-and-rebalance ()
+        "Splits the window vertically and rebalances all windows."
+        (interactive)
+        (split-window-below)
+        (balance-windows))
+
+      (defun shortcuts/split-horizontally-and-rebalance ()
+        "Splits the window horizontally and rebalances all windows."
+        (interactive)
+        (split-window-right)
+        (balance-windows))
+
+      (defun shortcuts/select-entire-line ()
+        "Selects the entire line."
+        (interactive)
+        (end-of-line)
+        (set-mark (line-beginning-position)))
     #+END_SRC
 
 ** Quality of Life
@@ -720,13 +729,22 @@
    (setq-default indent-tabs-mode nil
                  auto-hscroll-mode nil)
 
-   (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups/"))))
+   (setq backup-by-copying t
+      backup-directory-alist `(("." . ,(concat user-emacs-directory "backups")))
+      tramp-backup-directory-alist backup-directory-alist
+      delete-old-versions t
+      kept-new-versions 3
+      kept-old-versions 2
+      version-control t
+      vc-cvs-stay-local nil)
+
    (setq org-mode-startup-message "")
    (setq x-select-enable-clipboard t)
 
    (fset 'yes-or-no-p 'y-or-n-p)
 
    (setq confirm-kill-emacs 'y-or-n-p)
+   (setq dired-listing-switches "-alh")
 
    ;; Supposedly, this fixes some weirdness with the mark's behavior.
    (when (fboundp 'delete-selection-mode)
@@ -805,7 +823,7 @@
          display-time-24hr-format t
          eshell-error-if-no-glob t
          eshell-hist-ignoredups t
-         eshell-list-files-after-cd t
+         eshell-list-files-after-cd nil
          eshell-ls-initial-args "-alh"
          eshell-prefer-lisp-functions nil
          eshell-save-history-on-exit t
@@ -915,8 +933,15 @@
   export NVM_DIR="$HOME/.nvm"
   export MONO_GAC_PREFIX="/usr/local"
   export LD_LIBRARY_PATH="/usr/local/lib"
+  export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
   export HAXE_STD_PATH="/usr/local/lib/haxe/std"
   export PATH="$HOME/.nimble/bin:$PATH"
+  export PATH="/usr/lib/dart/bin:$PATH"
+  export PATH="$HOME/flutter/flutter/bin:$PATH"
+  export PATH="$HOME/.raku/bin:$PATH"
+  export CEDEV="$HOME/Desktop/CEDev"
+  export PATH="$CEDEV/bin:$PATH"
+  export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
