@@ -51,22 +51,6 @@
      ;; Load sensitive information
      (load (expand-file-name ".emacs.secrets" user-emacs-directory) t)
 
-     ;; Problem variables.
-     (eval-when-compile
-       (progn
-         (defvar url-http-method ())
-         (defvar url-http-data ())
-         (defvar url-http-extra-headers ())
-         (defvar oauth--token-data ())
-         (defvar url-callback-function ())
-         (defvar url-callback-arguments ())
-         (defvar url-http-method ())
-         (defvar url-http-data ())
-         (defvar url-http-extra-headers ())
-         (defvar oauth--token-data ())
-         (defvar url-callback-function ())
-         (defvar url-callback-arguments ())))
-
      (require 'ansi-color)
      (defun colorize-compilation-buffer ()
        (toggle-read-only)
@@ -85,9 +69,38 @@
   (defmacro use-packages (&rest packages)
     "Creates `use-package` declarations for each package in PACKAGES."
     (let ((results '()))
-       (dolist (package packages)
-         (push `(use-package ,package) results))
-       `(progn ,@(nreverse results))))
+      (dolist (package packages)
+        (push `(use-package ,package) results))
+      `(progn ,@(nreverse results))))
+
+  (defmacro qw (&rest symbols)
+    "Returns a quoted list of strings."
+    `(list ,@(mapcar (lambda (symbol) (format "%s" symbol)) symbols)))
+
+  (defmacro %% (number &rest divisors)
+    "Returns T or NIL if NUMBER is evenly divisible by all DIVISORS."
+    `(and ,@(mapcar (lambda (divisor) `(zerop (mod ,number ,divisor))) divisors)))
+
+  (defmacro between (number min max)
+    "Returns T or NIL if NUMBER is between MIN and MAX, inclusive."
+    `(and (>= ,number ,min) (<= ,number ,max)))
+
+  (defmacro polymod (number &rest divisors)
+    "Returns a list of modulo results with the remainder as the first element."
+    (let ((mutnum number)
+           (results '()))
+      (dolist (divisor divisors)
+        (setq results (cons (mod mutnum divisor) results))
+        (setq mutnum (/ mutnum divisor)))
+      `(reverse (list ,mutnum ,@results))))
+
+  (defmacro letter-sequence (start end)
+    "Returns a list of quoted letters."
+    `(mapcar
+       'char-to-string
+       (remove-if-not
+         (lambda (character) (or (between character 65 90) (between character 97 122)))
+         (number-sequence (string-to-char ,start) (string-to-char ,end)))))
 #+END_SRC
 
 *** Initialization Postscript
@@ -104,21 +117,7 @@
 
 ** Packages
    #+BEGIN_SRC emacs-lisp
-     (use-packages restart-emacs cl-lib ace-window all-the-icons async)
-     ;; (use-package auctex
-     ;;   :config (progn
-     ;;             (setq TeX-auto-save t)
-     ;;             (setq TeX-parse-self t)
-     ;;             (setq reftex-plug-into-AUCTeX t)
-     ;;             (setq TeX-PDF-mode t)
-     ;;             (setq-default TeX-master nil)
-     ;;             (add-hook 'LaTeX-mode-hook 'visual-line-mode)
-     ;;             (add-hook 'LaTeX-mode-hook 'flyspell-mode)
-     ;;             (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
-     ;;             (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-     ;;             (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)))
-     (use-packages battle-haxe bind-key buffer-move command-log-mode)
-
+     (use-packages restart-emacs cl-lib ace-window all-the-icons async battle-haxe bind-key buffer-move)
      (use-package company
        :config (progn
                  (add-to-list 'company-backends #'company-tabnine)
@@ -126,15 +125,9 @@
                    company-show-numbers t
                    company-tooltip-align-annotations t)))
 
-     ;; (use-package company-auctex :after auctex)
      (use-packages company-lsp company-tabnine)
      (use-package counsel :diminish t)
      (use-packages counsel-projectile csharp-mode d-mode dart-mode flutter)
-     (use-package deft
-       :bind ("<f9>" . deft)
-       :config (progn 
-                 (setq deft-recursive t)
-                 (setq deft-directory (expand-file-name "notes" user-emacs-directory))))
      (use-package diminish
        :config (progn
                  (diminish 'jiggle-mode)
@@ -152,7 +145,6 @@
                  (load-theme 'doom-one t)
                  (doom-themes-visual-bell-config)
                  (doom-themes-org-config)))
-     (use-packages elcord elmacro elsa)
      (use-package emmet-mode
        :config (progn 
                  (add-hook 'sgml-mode-hook 'emmet-mode)
@@ -169,11 +161,13 @@
      (use-package fasd
        :bind ("C-h C-/" . fasd-find-file)
        :config (global-fasd-mode 1))
+
      (use-packages flycheck flycheck-nimsuggest flycheck-perl6 font-lock-studio free-keys ghub git-commit go-mode golden-ratio)
      (use-package google-c-style
        :config (progn (add-hook 'c-mode-common-hook 'google-set-c-style)
                  (add-hook 'c-mode-common-hook 'google-make-newline-indent)))
-     (use-packages gradle-mode graphql haxe-imports haxe-mode hydra hyperbole iedit)
+
+     (use-packages gradle-mode haxe-mode hydra iedit)
      (use-package ivy
        :config (progn
                  (setq ivy-use-virtual-buffers t
@@ -181,7 +175,7 @@
                  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
-     (use-packages janet-mode js2-mode js2-refactor json-process-client julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-java lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize moonscript multiple-cursors names nim-mode nodejs-repl ob-restclient objed olivetti)
+     (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-restclient objed olivetti)
 
      (use-package omnisharp
        :config
@@ -227,7 +221,7 @@
                      (org-remove-inline-images)
                      (org-present-show-cursor)
                      (org-present-read-write)))))
-     (use-packages paradox pandoc-mode pdf-tools raku-mode perspective projectile pug-mode quelpa racket-mode request restclient)
+     (use-packages paradox pandoc-mode pdf-tools raku-mode perspective projectile quelpa racket-mode request restclient)
      (use-package rich-minority
        :config (progn (setq rm-whitelist
                         (format "^ \\(%s\\)$"
@@ -242,7 +236,7 @@
                  (setq sml/no-confirm-load-theme t
                    sml/theme 'respectful)
                  (sml/setup)))
-     (use-packages spinner ssass-mode sudo-edit suggest swiper tide transient transpose-frame tree-mode treemacs treepy trinary typescript-mode)
+     (use-packages spinner ssass-mode stream sudo-edit suggest swiper tide transient transpose-frame tree-mode treemacs treepy typescript-mode)
      (use-package undo-tree
        :diminish t
        :config (progn
@@ -250,7 +244,7 @@
                    undo-tree-visualizer-timestamps t
                    undo-tree-enable-undo-in-region nil)
                  (global-undo-tree-mode 1)))
-     (use-packages unicode-escape websocket)
+     (use-package unicode-escape)
      (use-package web-mode
        :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
      (use-package which-key
@@ -279,264 +273,275 @@
     
 *** Keybindings (Hydras)
     #+BEGIN_SRC emacs-lisp
-   (defhydra hsh-applications (:color blue)
-     "
-
-     HSH/Applications
-     ================
-
-     _k_: Paradox
-     _u_: Undo Tree
+      (defhydra hsh-applications (:color blue)
+        "
+
+        HSH/Applications
+        ================
+
+        _k_: Paradox
+        _u_: Undo Tree
 
-     "
-     ("k" paradox-list-packages nil)
-     ("u" undo-tree-visualize nil))
+        "
+        ("k" paradox-list-packages nil)
+        ("u" undo-tree-visualize nil))
 
-   (defhydra hsh-buffers (:color blue)
-     "
+      (defhydra hsh-buffers (:color blue)
+        "
 
-     HSH/Buffers
-     ===========
-
-           _C-p_/_<up>_                   _b_: Find Buffers
-    _C-b_/_<left>_      _C-f_/_<right>_       _d_: Kill This Buffer
-          _C-n_/_<down>_                  _D_: Kill Other Buffers
-                                      _s_: Switch to *scratch*
+        HSH/Buffers
+        ===========
 
-                                      _RET_: Cancel
-
-     "
-     ("RET" nil nil)
-     ("<up>" buf-move-up nil :color red)
-     ("<down>" buf-move-down nil :color red)
-     ("<left>" buf-move-left nil :color red)
-     ("<right>" buf-move-right nil :color red)
-     ("C-p" buf-move-up nil :color red)
-     ("C-n" buf-move-down nil :color red)
-     ("C-b" buf-move-left nil :color red)
-     ("C-f" buf-move-right nil :color red)
-     ("b" ivy-switch-buffer nil)
-     ("d" kill-this-buffer nil)
-     ("D" shortcuts/kill-other-buffers nil)
-     ("s" shortcuts/switch-to-scratch-buffer nil))
+              _C-p_/_<up>_                   _b_: Find Buffers
+       _C-b_/_<left>_      _C-f_/_<right>_       _d_: Kill This Buffer
+             _C-n_/_<down>_                  _D_: Kill Other Buffers
+                                         _s_: Switch to *scratch*
 
-   (defhydra hsh-config (:color blue)
-     "
+                                         _RET_: Cancel
 
-     HSH/Config
-     ==========
+        "
+        ("RET" nil nil)
+        ("<up>" buf-move-up nil :color red)
+        ("<down>" buf-move-down nil :color red)
+        ("<left>" buf-move-left nil :color red)
+        ("<right>" buf-move-right nil :color red)
+        ("C-p" buf-move-up nil :color red)
+        ("C-n" buf-move-down nil :color red)
+        ("C-b" buf-move-left nil :color red)
+        ("C-f" buf-move-right nil :color red)
+        ("b" ivy-switch-buffer nil)
+        ("d" kill-this-buffer nil)
+        ("D" shortcuts/kill-other-buffers nil)
+        ("s" shortcuts/switch-to-scratch-buffer nil))
 
-     _i_: Bootstrapping
-     _o_: Config Org
-
-     "
-     ("i" shortcuts/edit-elisp-init-file nil)
-     ("o" shortcuts/edit-org-init-file nil))
-
-   (defhydra hsh-files (:color blue)
-     "
+      (defhydra hsh-config (:color blue)
+        "
 
-     HSH/Files
-     =========
+        HSH/Config
+        ==========
 
-     _f_: Find File
-     _p_: [Projectile]
-     _w_: Write File
-     _R_: Revert Buffer
+        _i_: Bootstrapping
+        _o_: Config Org
 
-     "
-     ("w" write-file nil)
-     ("p" hsh-projectile/body nil)
-     ("f" counsel-find-file nil)
-     ("R" revert-buffer nil))
+        "
+        ("i" shortcuts/edit-elisp-init-file nil)
+        ("o" shortcuts/edit-org-init-file nil))
 
-   (defhydra hsh-git (:color blue)
-     "
+      (defhydra hsh-eval (:color blue)
+        "
 
-     HSH/Git
-     =======
+        HSH/Eval
+        ========
 
-     _b_: Forward Blame         _d_: Diff Unstaged
-     _q_: Back Blame            _D_: Diff Staged
+        _s_: Replace last sexp
 
-     _g_: Dispatch Popup     _f_: Find File
-     _s_: Status
+        "
+        ("s" shortcuts/replace-last-sexp nil))
 
-     "
-     ("b" magit-blame nil)
-     ("q" magit-blame-quit nil)
-     ("g" magit-dispatch-popup nil)
-     ("s" magit-status nil)
-     ("f" magit-find-file nil)
-     ("d" magit-diff-unstaged nil)
-     ("D" magit-diff-staged nil))
+      (defhydra hsh-files (:color blue)
+        "
 
-   (defhydra hsh-jump-to (:color blue)
-     "
+        HSH/Files
+        =========
 
-     HSH/Jump To
-     ===========
+        _f_: Find File
+        _p_: [Projectile]
+        _w_: Write File
+        _R_: Revert Buffer
 
-     _m_: Minibuffer
+        "
+        ("w" write-file nil)
+        ("p" hsh-projectile/body nil)
+        ("f" counsel-find-file nil)
+        ("R" revert-buffer nil))
 
-     "
-     ("m" shortcuts/switch-to-minibuffer nil))
+      (defhydra hsh-git (:color blue)
+        "
 
-   (defhydra hsh-insertion (:color blue)
-     "
+        HSH/Git
+        =======
 
-     HSH/Insertion
-     =============
+        _b_: Forward Blame         _d_: Diff Unstaged
+        _q_: Back Blame            _D_: Diff Staged
 
-     Lipsum
-     ------
-     _l_: List
-     _p_: Paragraph
-     _s_: Sentence
+        _g_: Dispatch Popup     _f_: Find File
+        _s_: Status
 
-     "
-     ("l" lorem-ipsum-insert-list nil)
-     ("p" lorem-ipsum-insert-paragraphs nil)
-     ("s" lorem-ipsum-insert-sentences nil))
+        "
+        ("b" magit-blame nil)
+        ("q" magit-blame-quit nil)
+        ("g" magit-dispatch-popup nil)
+        ("s" magit-status nil)
+        ("f" magit-find-file nil)
+        ("d" magit-diff-unstaged nil)
+        ("D" magit-diff-staged nil))
 
-   (defhydra hsh-narrowing (:color blue)
-     "
+      (defhydra hsh-jump-to (:color blue)
+        "
 
-     HSH/Narrowing
-     =============
+        HSH/Jump To
+        ===========
 
-     _f_: To Function
-     _r_: To Region
-     _w_: Widen
+        _m_: Minibuffer
 
-     "
-     ("f" narrow-to-defun nil)
-     ("r" narrow-to-region nil)
-     ("w" widen nil))
+        "
+        ("m" shortcuts/switch-to-minibuffer nil))
 
-   (defhydra hsh-org-clock (:color blue)
-     "
+      (defhydra hsh-insertion (:color blue)
+        "
 
-     HSH/Org/Clock
-     =============
+        HSH/Insertion
+        =============
 
-     _i_: Clock In
-     _o_: Clock Out
-     _r_: Report
-     _t_: Timestamp
+        Lipsum
+        ------
+        _l_: List
+        _p_: Paragraph
+        _s_: Sentence
 
-     "
-     ("i" org-clock-in nil)
-     ("o" org-clock-out nil)
-     ("r" org-clock-report nil)
-     ("t" org-time-stamp nil))
+        "
+        ("l" lorem-ipsum-insert-list nil)
+        ("p" lorem-ipsum-insert-paragraphs nil)
+        ("s" lorem-ipsum-insert-sentences nil))
 
-   (defhydra hsh-org (:color blue)
-     "
+      (defhydra hsh-narrowing (:color blue)
+        "
 
-     HSH/Org
-     =======
+        HSH/Narrowing
+        =============
 
-     _c_: [Clock]
-     _o_: Capture
-     _t_: Todo
+        _f_: To Function
+        _r_: To Region
+        _w_: Widen
 
-     "
-     ("c" hsh-org-clock/body nil :exit t)
-     ("o" org-capture nil)
-     ("t" org-todo nil))
+        "
+        ("f" narrow-to-defun nil)
+        ("r" narrow-to-region nil)
+        ("w" widen nil))
 
-   (defhydra hsh-projectile (:color blue)
-     "
+      (defhydra hsh-org-clock (:color blue)
+        "
 
-     HSH/Projectile
-     ==============
+        HSH/Org/Clock
+        =============
 
-     _f_: Find File
-     _p_: Dispatch Popup
+        _i_: Clock In
+        _o_: Clock Out
+        _r_: Report
+        _t_: Timestamp
 
-     "
-     ("f" counsel-projectile-find-file nil)
-     ("p" counsel-projectile nil))
+        "
+        ("i" org-clock-in nil)
+        ("o" org-clock-out nil)
+        ("r" org-clock-report nil)
+        ("t" org-time-stamp nil))
 
-   (defhydra hsh-quit (:color blue)
-     "
+      (defhydra hsh-org (:color blue)
+        "
 
-     HSH/Quit
-     ========
+        HSH/Org
+        =======
 
-     _q_: Save and Quit
-     _r_: Restart
+        _c_: [Clock]
+        _o_: Capture
+        _t_: Todo
 
-     "
-     ("q" save-buffers-kill-emacs nil)
-     ("r" restart-emacs nil))
+        "
+        ("c" hsh-org-clock/body nil :exit t)
+        ("o" org-capture nil)
+        ("t" org-todo nil))
 
-   (defhydra hsh-registers-resume (:color blue)
-     "
+      (defhydra hsh-projectile (:color blue)
+        "
 
-     HSH/Registers-Resume
-     ====================
+        HSH/Projectile
+        ==============
 
-     Registers           Resume
-     ---------           ------
-     _y_: Kill Ring      _r_: Ivy Resume
+        _f_: Find File
+        _p_: Dispatch Popup
 
-     "
-     ("r" ivy-resume nil)
-     ("y" counsel-yank-pop nil))
+        "
+        ("f" counsel-projectile-find-file nil)
+        ("p" counsel-projectile nil))
 
-   (defhydra hsh-search (:color blue)
-     "
+      (defhydra hsh-quit (:color blue)
+        "
 
-     HSH/Search
-     ==========
+        HSH/Quit
+        ========
 
-     Rg          
-     --          
-     _f_: Files  
+        _q_: Save and Quit
+        _r_: Restart
 
-     "
+        "
+        ("q" save-buffers-kill-emacs nil)
+        ("r" restart-emacs nil))
 
-     ("f" counsel-rg nil))
+      (defhydra hsh-registers-resume (:color blue)
+        "
 
-   (defhydra hsh-windows (:color blue)
-     "
+        HSH/Registers-Resume
+        ====================
 
-     HSH/Windows
-     ===========
+        Registers           Resume
+        ---------           ------
+        _y_: Kill Ring      _r_: Ivy Resume
 
-       _w_: Golden Ratio
-       _d_: Delete This Window
-       _D_: Delete Other Windows
-       _s_: Horiz. Split
-       _v_: Vert. Split
+        "
+        ("r" ivy-resume nil)
+        ("y" counsel-yank-pop nil))
 
-     "
-     ("w" golden-ratio nil)
-     ("d" delete-window nil)
-     ("D" delete-other-windows nil)
-     ("s" split-window-below nil)
-     ("v" split-window-right nil))
+      (defhydra hsh-search (:color blue)
+        "
 
-   (defhydra hsh-perspective (:color blue)
-     "
+        HSH/Search
+        ==========
 
-     HSH/Perspective
-     ===============
+        Rg          
+        --          
+        _f_: Files  
 
-       _s_: Switch Perspective
-       _a_: Add Buffer to Perspective
-       _k_: Remove Buffer from Perspective 
-       _r_: Rename Perspective
-       _d_: Delete Perspective
+        "
 
-     "
-     ("s" persp-switch nil)
-     ("a" persp-add-buffer nil)
-     ("k" persp-remove-buffer nil)
-     ("r" persp-rename nil)
-     ("d" persp-kill nil))
+        ("f" counsel-rg nil))
+
+      (defhydra hsh-windows (:color blue)
+        "
+
+        HSH/Windows
+        ===========
+
+          _w_: Golden Ratio
+          _d_: Delete This Window
+          _D_: Delete Other Windows
+          _s_: Horiz. Split
+          _v_: Vert. Split
+
+        "
+        ("w" golden-ratio nil)
+        ("d" delete-window nil)
+        ("D" delete-other-windows nil)
+        ("s" split-window-below nil)
+        ("v" split-window-right nil))
+
+      (defhydra hsh-perspective (:color blue)
+        "
+
+        HSH/Perspective
+        ===============
+
+          _s_: Switch Perspective
+          _a_: Add Buffer to Perspective
+          _k_: Remove Buffer from Perspective 
+          _r_: Rename Perspective
+          _d_: Delete Perspective
+
+        "
+        ("s" persp-switch nil)
+        ("a" persp-add-buffer nil)
+        ("k" persp-remove-buffer nil)
+        ("r" persp-rename nil)
+        ("d" persp-kill nil))
     #+END_SRC
 
 *** HSH Leader Hydra
@@ -546,11 +551,11 @@
 
      Home Sweet Home
      ===============
-     _a_: [Applications]      _j_: [Jump To]          _q_: [Quit]
-     _b_: [Buffers]           _i_: [Insertion]        _r_: [Registers/Resume]
-     _c_: [Config]            _n_: [Narrowing]        _s_: [Search]
+     _a_: [Applications]      _g_: [Git]              _p_: [Perspective]
+     _b_: [Buffers]           _j_: [Jump To]          _q_: [Quit]
+     _c_: [Config]            _i_: [Insertion]        _r_: [Registers/Resume]
+     _e_: [Eval]              _n_: [Narrowing]        _s_: [Search]
      _f_: [Files]             _o_: [Org]              _w_: [Windows]
-     _g_: [Git]               _p_: [Perspective]       
 
      _C-;_: M-x
      _-_: Eshell, _=_: Full Shell
@@ -559,6 +564,7 @@
      ("a" hsh-applications/body nil)
      ("b" hsh-buffers/body nil)
      ("c" hsh-config/body nil)
+     ("e" hsh-eval/body nil)
      ("f" hsh-files/body nil)
      ("g" hsh-git/body nil)
      ("j" hsh-jump-to/body nil)
@@ -646,6 +652,12 @@
         "Opens a shell."
         (interactive)
         (ansi-term "/bin/zsh" "zsh"))
+
+      (defun shortcuts/replace-last-sexp ()
+        (interactive)
+        (let ((value (eval (preceding-sexp))))
+          (kill-sexp -1)
+          (insert (format "%S" value))))
 
       (defun shortcuts/find-file-in-emacs-d (file)
         "This finds FILE in the .emacs.d directory."
@@ -942,6 +954,7 @@
   export CEDEV="$HOME/Desktop/CEDev"
   export PATH="$CEDEV/bin:$PATH"
   export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
+  export PATH="/home/raycat/.local/bin:$PATH"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
