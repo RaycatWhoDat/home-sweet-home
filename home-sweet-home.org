@@ -955,9 +955,6 @@
   export PATH="$CEDEV/bin:$PATH"
   export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
   export PATH="$HOME/.local/bin:$PATH"
-  export REACT_APP_GOOGLE_API_KEY="AIzaSyAhijwX1evVFRW7Uwk5PQ-ikWZhM4aXH9I"
-  export TEST_USER="ray.perry@thoughtworks.com"
-  export TEST_PASS="The answer is forty-two"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
