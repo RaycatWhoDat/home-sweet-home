@@ -657,7 +657,7 @@
         (interactive)
         (let ((value (eval (preceding-sexp))))
           (kill-sexp -1)
-          (insert (format "%S" value))))
+          (insert (format "%s" value))))
 
       (defun shortcuts/find-file-in-emacs-d (file)
         "This finds FILE in the .emacs.d directory."
