@@ -127,7 +127,7 @@
 
      (use-packages company-lsp company-tabnine)
      (use-package counsel :diminish t)
-     (use-packages counsel-projectile csharp-mode d-mode dart-mode flutter)
+     (use-packages csharp-mode d-mode dart-mode flutter)
      (use-package diminish
        :config (progn
                  (diminish 'jiggle-mode)
@@ -162,7 +162,7 @@
        :bind ("C-h C-/" . fasd-find-file)
        :config (global-fasd-mode 1))
 
-     (use-packages flycheck flycheck-nimsuggest flycheck-perl6 font-lock-studio free-keys ghub git-commit go-mode golden-ratio)
+     (use-packages flycheck free-keys ghub go-mode golden-ratio)
      (use-package google-c-style
        :config (progn (add-hook 'c-mode-common-hook 'google-set-c-style)
                  (add-hook 'c-mode-common-hook 'google-make-newline-indent)))
@@ -175,37 +175,12 @@
                  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
-     (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-restclient objed olivetti)
 
-     (use-package omnisharp
-       :config
-       (progn
-         (eval-after-load
-           'company
-           '(add-to-list 'company-backends #'company-omnisharp))
-
-         (defun my-csharp-mode-setup ()
-           (omnisharp-mode)
-           (company-mode)
-           (flycheck-mode)
-
-           (setq indent-tabs-mode nil)
-           (setq c-syntactic-indentation t)
-           (c-set-style "ellemtel")
-           (setq c-basic-offset 4)
-           (setq truncate-lines t)
-           (setq tab-width 4)
-           (setq evil-shift-width 4)
-           (electric-pair-local-mode 1)
-
-           (local-set-key (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
-           (local-set-key (kbd "C-c C-c") 'recompile))
-
-         (add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)))
-
+     (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-restclient olivetti)
      (use-package org-bullets
        :config 
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+
      (use-package org-d20)
      (use-package org-present
        :config (progn
@@ -221,22 +196,26 @@
                      (org-remove-inline-images)
                      (org-present-show-cursor)
                      (org-present-read-write)))))
-     (use-packages paradox pandoc-mode pdf-tools raku-mode perspective projectile quelpa racket-mode request restclient)
+
+     (use-packages paradox pandoc-mode pdf-tools raku-mode perspective quelpa racket-mode request restclient)
      (use-package rich-minority
        :config (progn (setq rm-whitelist
                         (format "^ \\(%s\\)$"
                           (mapconcat #'identity '() "\\|")))
                  (rich-minority-mode 1)))
+
      (use-packages rjsx-mode rmsbolt rust-mode shelisp)
      (use-package sly
        :config (progn
                  (setq inferior-lisp-program "/usr/local/bin/sbcl --no-inform")))
+
      (use-package smart-mode-line
        :config (progn
                  (setq sml/no-confirm-load-theme t
                    sml/theme 'respectful)
                  (sml/setup)))
-     (use-packages spinner ssass-mode stream sudo-edit suggest swiper tide transient transpose-frame tree-mode treemacs treepy typescript-mode)
+
+     (use-packages spinner ssass-mode stream sudo-edit suggest swiper tide transient transpose-frame tree-mode treepy typescript-mode)
      (use-package undo-tree
        :diminish t
        :config (progn
@@ -244,12 +223,15 @@
                    undo-tree-visualizer-timestamps t
                    undo-tree-enable-undo-in-region nil)
                  (global-undo-tree-mode 1)))
+
      (use-package unicode-escape)
      (use-package web-mode
        :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
+
      (use-package which-key
        :diminish t
        :config (which-key-mode 1))
+
      (use-packages with-editor yaml-mode yasnippet zig-mode)
    #+END_SRC
 
@@ -345,13 +327,13 @@
         =========
 
         _f_: Find File
-        _p_: [Projectile]
+        _p_: [Project]
         _w_: Write File
         _R_: Revert Buffer
 
         "
         ("w" write-file nil)
-        ("p" hsh-projectile/body nil)
+        ("p" hsh-project/body nil)
         ("f" counsel-find-file nil)
         ("R" revert-buffer nil))
 
@@ -451,18 +433,16 @@
         ("o" org-capture nil)
         ("t" org-todo nil))
 
-      (defhydra hsh-projectile (:color blue)
+      (defhydra hsh-project (:color blue)
         "
 
-        HSH/Projectile
-        ==============
+        HSH/Project
+        ===========
 
         _f_: Find File
-        _p_: Dispatch Popup
 
         "
-        ("f" counsel-projectile-find-file nil)
-        ("p" counsel-projectile nil))
+        ("f" project-find-file nil))
 
       (defhydra hsh-quit (:color blue)
         "
