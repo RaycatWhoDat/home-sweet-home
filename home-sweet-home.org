@@ -66,62 +66,59 @@
 
 *** Utilities
     #+BEGIN_SRC emacs-lisp :tangle init.el
-      (defmacro use-packages (&rest packages)
-        "Creates `use-package` declarations for each package in PACKAGES."
-        (let ((results '()))
-          (dolist (package packages)
-            (push `(use-package ,package) results))
-          `(progn ,@(nreverse results))))
+  (defmacro use-packages (&rest packages)
+    "Creates `use-package` declarations for each package in PACKAGES."
+    (let ((results '()))
+      (dolist (package packages)
+        (push `(use-package ,package) results))
+      `(progn ,@(nreverse results))))
 
-      (defmacro qw (&rest symbols)
-        "Returns a quoted list of strings."
-        `(list ,@(mapcar (lambda (symbol) (format "%s" symbol)) symbols)))
+  (defmacro qw (&rest symbols)
+    "Returns a quoted list of strings."
+    `(list ,@(mapcar (lambda (symbol) (format "%s" symbol)) symbols)))
 
-      (defmacro %% (number &rest divisors)
-        "Returns T or NIL if NUMBER is evenly divisible by all DIVISORS."
-        `(and ,@(mapcar (lambda (divisor) `(zerop (mod ,number ,divisor))) divisors)))
+  (defmacro %% (number &rest divisors)
+    "Returns T or NIL if NUMBER is evenly divisible by all DIVISORS."
+    `(and ,@(mapcar (lambda (divisor) `(zerop (mod ,number ,divisor))) divisors)))
 
-      (defmacro between (number min max)
-        "Returns T or NIL if NUMBER is between MIN and MAX, inclusive."
-        `(and (>= ,number ,min) (<= ,number ,max)))
+  (defmacro between (number min max)
+    "Returns T or NIL if NUMBER is between MIN and MAX, inclusive."
+    `(and (>= ,number ,min) (<= ,number ,max)))
 
-      (defmacro polymod (number &rest divisors)
-        "Returns a list of modulo results with the remainder as the first element."
-        (let ((mutnum number)
-               (results '()))
-          (dolist (divisor divisors)
-            (setq results (cons (mod mutnum divisor) results))
-            (setq mutnum (/ mutnum divisor)))
-          `(reverse (list ,mutnum ,@results))))
+  (defmacro polymod (number &rest divisors)
+    "Returns a list of modulo results with the remainder as the first element."
+    (let ((mutnum number)
+           (results '()))
+      (dolist (divisor divisors)
+        (setq results (cons (mod mutnum divisor) results))
+        (setq mutnum (/ mutnum divisor)))
+      `(reverse (list ,mutnum ,@results))))
 
-      (defmacro letter-sequence (start end)
-        "Returns a list of quoted letters."
-        `(mapcar
-           'char-to-string
-           (remove-if-not
-             (lambda (character) (or (between character 65 90) (between character 97 122)))
-             (number-sequence (string-to-char ,start) (string-to-char ,end)))))
+  (defmacro letter-sequence (start end)
+    "Returns a list of quoted letters."
+    `(mapcar
+       'char-to-string
+       (remove-if-not
+         (lambda (character) (or (between character 65 90) (between character 97 122)))
+         (number-sequence (string-to-char ,start) (string-to-char ,end)))))
 
-      (defun get-pairings ()
-        "Return a list of two-element lists representing the potential
-      pairings."
-        (interactive)
-        (let ((pairs '()))
-          (let ((names (qw Syd Sabrina Veronica Karan Sean Ray))
-                 (combinations nil))
-            (setq combinations
-              (remove-if-not
-                (lambda (combination) (= (length combination) 2))
-                (-powerset names)))
-            (while (not (null (-difference names (-flatten pairs))))
-              (setq pairs
-                (loop for index to 2
-                  collect (nth (random (length combinations)) combinations)))))
-          (with-output-to-temp-buffer "*pairings*"
-            (princ "How about...\n\n")
-            (dolist (pair pairs)
-              (princ (format "%s and %s\n" (car pair) (cadr pair)))))
-          (other-window 1)))
+  (defun current-line ()
+    "Returns the current line number at point."
+    (save-restriction
+      (widen)
+      (save-excursion
+        (beginning-of-line)
+          (1+ (count-lines 1 (point))))))
+
+  (defun insert-logpoint (&optional message)
+    "Given a string called MESSAGE, insert a logpoint that contains
+  that message."
+    (interactive "sOptional message: ")
+    (insert
+      (format
+        "\nconsole.log(%S, %S);"
+        (concat (buffer-name) ":" (number-to-string (1+ (current-line))) ":")
+        (if (zerop (length message)) "Logpoint!" message))))
     #+END_SRC
 
 *** Initialization Postscript
@@ -196,6 +193,33 @@
                  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
                  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
                  (ivy-mode 1)))
+     (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-doc-c ob-restclient objed olivetti)
+
+     (use-package omnisharp
+       :config
+       (progn
+         (eval-after-load
+           'company
+           '(add-to-list 'company-backends #'company-omnisharp))
+
+         (defun my-csharp-mode-setup ()
+           (omnisharp-mode)
+           (company-mode)
+           (flycheck-mode)
+
+           (setq indent-tabs-mode nil)
+           (setq c-syntactic-indentation t)
+           (c-set-style "ellemtel")
+           (setq c-basic-offset 4)
+           (setq truncate-lines t)
+           (setq tab-width 4)
+           (setq evil-shift-width 4)
+           (electric-pair-local-mode 1)
+
+           (local-set-key (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
+           (local-set-key (kbd "C-c C-c") 'recompile))
+
+         (add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)))
 
      (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-restclient olivetti)
      (use-package org-bullets
@@ -260,7 +284,7 @@
 *** Org Babel
     #+BEGIN_SRC emacs-lisp
       ;; All the org-babel-languages.
-      (setq loaded-languages '(C emacs-lisp js latex ocaml python shell))
+      (setq loaded-languages '(C emacs-lisp js perl python shell))
 
       ;; Build the org-babel-load-languages list.
       ;; This uses `loaded-languages' which should be set.
@@ -396,14 +420,13 @@
         HSH/Insertion
         =============
 
-        Lipsum
-        ------
-        _l_: List
-        _p_: Paragraph
+        Lipsum                  Utilities
+        ------                  ---------
+        _p_: Paragraph            _l_: Logpoint
         _s_: Sentence
 
         "
-        ("l" lorem-ipsum-insert-list nil)
+        ("l" insert-logpoint nil)
         ("p" lorem-ipsum-insert-paragraphs nil)
         ("s" lorem-ipsum-insert-sentences nil))
 
@@ -846,13 +869,15 @@
          inhibit-startup-message t
          initial-major-mode 'fundamental-mode
          initial-scratch-message org-mode-startup-message
-         js-indent-level 4
+         js-indent-level 2
+         typescript-indent-level 2
          kill-whole-line t
          large-file-warning-threshold 100000000
          load-prefer-newer t
          ls-lisp-use-insert-directory-program nil
          next-line-add-newlines t
          org-checkbox-hierarchical-statistics nil
+         org-clock-idle-time 10
          org-confirm-babel-evaluate nil
          sentence-end-double-space nil
          use-dialog-box nil
@@ -902,6 +927,7 @@
 
    (setq org-support-shift-select t)
    (setq ivy-use-selectable-prompt t)
+   (setq org-duration-format (quote h:mm))
    #+END_SRC
 
 *** Generic Modes
@@ -956,6 +982,7 @@
   export PATH="$CEDEV/bin:$PATH"
   export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
   export PATH="$HOME/.local/bin:$PATH"
+  export PATH="$HOME/Library/Python/3.7/lib/python/site-packages:$PATH"
    #+END_SRC
 
    #+BEGIN_SRC shell :tangle ~/minimal.zsh
