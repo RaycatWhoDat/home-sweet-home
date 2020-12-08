@@ -152,6 +152,7 @@
     janet-mode
     julia-mode
     kotlin-mode
+    haxe-mode
     lua-mode
     markdown-mode
     nim-mode
@@ -168,8 +169,6 @@
     :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
 
   ;; Temporary or packages that I want to test.
-
-  (use-package diff-hl)
 
   (use-package goggles
   :demand t
