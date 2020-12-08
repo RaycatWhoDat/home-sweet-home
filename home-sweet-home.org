@@ -1,24 +1,12 @@
-#+TITLE: Home Sweet Home
-#+AUTHOR: Ray Perry
+#+TITLE: Home Sweet Home v2
+#+AUTHOR: RaycatWhoDat
 #+STARTUP: showall
 #+PROPERTY: header-args :tangle config.el
 
 ** Introduction
-   This is the most recent iteration of my Emacs configurations.
-
-   - Bootstrapping (fundamental changes, priority matters)
-   - Packages
-   - Configurations (additional changes)
-   - Quality of Life (appearance, keybindings)
-   - Additional Dotfiles and Scripts
-
-   #+BEGIN_SRC emacs-lisp :tangle .emacs.secrets
-     (setq user-handle "RaycatWhoDat"
-	   alternate-user-handle "RaycatRakittra"
-	   user-full-name "Ray Perry"
-	   user-mail-address "rmperry09@gmail.com"
-	   discord-handle "RaycatWhoDat#0001")
-   #+END_SRC
+  This is the second iteration of the HSH configuration system for
+  Emacs. Most of the categories are separated by function with the
+  highest priority packages coming up first.
 
 ** Bootstrapping
    #+BEGIN_SRC emacs-lisp :tangle init.el
@@ -30,8 +18,6 @@
      (setq package-check-signature nil)
 
      ;; Add software sources
-     (unless (assoc-default "marmalade" package-archives)
-       (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t))
      (unless (assoc-default "melpa" package-archives)
        (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t))
      (unless (assoc-default "org" package-archives)
@@ -47,9 +33,6 @@
      (setq use-package-always-ensure t)
 
      (add-to-list 'load-path (expand-file-name "extra" user-emacs-directory))
-
-     ;; Load sensitive information
-     (load (expand-file-name ".emacs.secrets" user-emacs-directory) t)
 
      (require 'ansi-color)
      (defun colorize-compilation-buffer ()
@@ -134,157 +117,196 @@
     #+END_SRC
 
 ** Packages
-   #+BEGIN_SRC emacs-lisp
-     (use-packages restart-emacs cl-lib ace-window all-the-icons async battle-haxe bind-key buffer-move)
-     (use-package company
-       :config (progn
-                 (add-to-list 'company-backends #'company-tabnine)
-                 (setq company-idle-delay 0
-                   company-show-numbers t
-                   company-tooltip-align-annotations t)))
+#+BEGIN_SRC emacs-lisp
+  ;; Essential packages.
+  (use-packages restart-emacs cl-lib async bind-key paradox crux)
 
-     (use-packages company-lsp company-tabnine)
-     (use-package counsel :diminish t)
-     (use-packages csharp-mode d-mode dart-mode flutter)
-     (use-package diminish
-       :config (progn
-                 (diminish 'jiggle-mode)
-                 (diminish 'auto-revert-mode)
-                 (diminish 'visual-line-mode)
-                 (diminish 'undo-tree-mode)
-                 (diminish 'abbrev-mode)
-                 (diminish 'ivy-mode)
-                 (diminish 'counsel-mode)
-                 (diminish 'which-key-mode)))
-     (use-package doom-themes
-       :config (progn
-                 (setq doom-themes-enable-bold t
-                   doom-themes-enable-italic t)
-                 (load-theme 'doom-one t)
-                 (doom-themes-visual-bell-config)
-                 (doom-themes-org-config)))
-     (use-package emmet-mode
-       :config (progn 
-                 (add-hook 'sgml-mode-hook 'emmet-mode)
-                 (add-hook 'css-mode-hook 'emmet-mode)
-                 (add-hook 'mhtml-mode-hook 'emmet-mode)))
-     (use-packages emojify erc-twitch eshell-toggle)
-     (use-package eshell-git-prompt
-       :config (eshell-git-prompt-use-theme 'git-radar))
-     (use-package exec-path-from-shell
-       :config (progn 
-                 (setq exec-path-from-shell-check-startup-files nil)
-                 (exec-path-from-shell-initialize)))
-     (use-package expand-region)
-     (use-package fasd
-       :bind ("C-h C-/" . fasd-find-file)
-       :config (global-fasd-mode 1))
+  ;; High priority graphical packages.
+  (use-packages all-the-icons diminish)
 
-     (use-packages flycheck free-keys ghub go-mode golden-ratio)
-     (use-package google-c-style
-       :config (progn (add-hook 'c-mode-common-hook 'google-set-c-style)
-                 (add-hook 'c-mode-common-hook 'google-make-newline-indent)))
+  ;; High priority movement packages.
+  (use-packages ace-window buffer-move hydra iedit)
 
-     (use-packages gradle-mode haxe-mode hydra iedit)
-     (use-package ivy
-       :config (progn
-                 (setq ivy-use-virtual-buffers t
-                   enable-recursive-minibuffers t)
-                 (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
-                 (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
-                 (ivy-mode 1)))
-     (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-doc-c ob-restclient objed olivetti)
+  ;; Company backends.
+  (use-packages company-lsp company-tabnine)
 
-     (use-package omnisharp
-       :config
-       (progn
-         (eval-after-load
-           'company
-           '(add-to-list 'company-backends #'company-omnisharp))
+  (use-package company
+    :config (progn
+              (add-to-list 'company-backends #'company-tabnine)
+              (setq company-idle-delay 0
+                company-show-numbers t
+                company-tooltip-align-annotations t)))
 
-         (defun my-csharp-mode-setup ()
-           (omnisharp-mode)
-           (company-mode)
-           (flycheck-mode)
+  (use-package counsel :diminish t)
 
-           (setq indent-tabs-mode nil)
-           (setq c-syntactic-indentation t)
-           (c-set-style "ellemtel")
-           (setq c-basic-offset 4)
-           (setq truncate-lines t)
-           (setq tab-width 4)
-           (setq evil-shift-width 4)
-           (electric-pair-local-mode 1)
+  (use-package which-key
+    :diminish t
+    :config (which-key-mode 1))
 
-           (local-set-key (kbd "C-c r r") 'omnisharp-run-code-action-refactoring)
-           (local-set-key (kbd "C-c C-c") 'recompile))
+  ;; Major modes and packages for languages.
+  (use-packages
+    battle-haxe
+    d-mode
+    dart-mode
+    flutter
+    janet-mode
+    julia-mode
+    kotlin-mode
+    lua-mode
+    markdown-mode
+    nim-mode
+    pandoc-mode
+    raku-mode
+    racket-mode
+    rjsx-mode
+    rust-mode
+    ssass-mode
+    typescript-mode
+    yaml-mode)
 
-         (add-hook 'csharp-mode-hook 'my-csharp-mode-setup t)))
+  (use-package web-mode
+    :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
 
-     (use-packages janet-mode js2-mode js2-refactor julia-mode julia-repl kotlin-mode literate-calc-mode log4e lorem-ipsum lsp-mode lsp-ui lua-mode magit magit-popup markdown-mode markup-faces memoize meson-mode multiple-cursors nim-mode ninja-mode nodejs-repl ob-restclient olivetti)
-     (use-package org-bullets
-       :config 
-       (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+  ;; Temporary or packages that I want to test.
 
-     (use-package org-d20)
-     (use-package org-present
-       :config (progn
-                 (add-hook 'org-present-mode-hook
-                   (lambda ()
-                     (org-present-big)
-                     (org-display-inline-images)
-                     (org-present-hide-cursor)
-                     (org-present-read-only)))
-                 (add-hook 'org-present-mode-quit-hook
-                   (lambda ()
-                     (org-present-small)
-                     (org-remove-inline-images)
-                     (org-present-show-cursor)
-                     (org-present-read-write)))))
+  (use-package diff-hl)
 
-     (use-packages paradox pandoc-mode pdf-tools raku-mode perspective quelpa racket-mode request restclient)
-     (use-package rich-minority
-       :config (progn (setq rm-whitelist
-                        (format "^ \\(%s\\)$"
-                          (mapconcat #'identity '() "\\|")))
-                 (rich-minority-mode 1)))
+  (use-package goggles
+  :demand t
+  :config
+  (goggles-mode)
+  (setq-default goggles-pulse t))
 
-     (use-packages rjsx-mode rmsbolt rust-mode shelisp)
-     (use-package sly
-       :config (progn
-                 (setq inferior-lisp-program "/usr/local/bin/sbcl --no-inform")))
+  (use-package keycast :config (keycast-mode 1))
+  
+  (use-packages gdscript-mode)
 
-     (use-package smart-mode-line
-       :config (progn
-                 (setq sml/no-confirm-load-theme t
-                   sml/theme 'respectful)
-                 (sml/setup)))
+  (use-package doom-themes
+    :config (progn
+              (setq doom-themes-enable-bold t
+                doom-themes-enable-italic t)
+              (load-theme 'doom-one t)
+              (doom-themes-visual-bell-config)
+              (doom-themes-org-config)))
 
-     (use-packages spinner ssass-mode stream sudo-edit suggest swiper tide transient transpose-frame tree-mode treepy typescript-mode)
-     (use-package undo-tree
-       :diminish t
-       :config (progn
-                 (setq undo-tree-visualizer-diff t
-                   undo-tree-visualizer-timestamps t
-                   undo-tree-enable-undo-in-region nil)
-                 (global-undo-tree-mode 1)))
+  (use-package emmet-mode
+    :config (progn 
+              (add-hook 'sgml-mode-hook 'emmet-mode)
+              (add-hook 'css-mode-hook 'emmet-mode)
+              (add-hook 'mhtml-mode-hook 'emmet-mode)))
 
-     (use-package unicode-escape)
-     (use-package web-mode
-       :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
+  (use-packages eshell-toggle expand-region)
 
-     (use-package which-key
-       :diminish t
-       :config (which-key-mode 1))
+  (use-package eshell-git-prompt
+    :config (eshell-git-prompt-use-theme 'git-radar))
 
-     (use-packages with-editor yaml-mode yasnippet zig-mode)
-   #+END_SRC
+  (use-package exec-path-from-shell
+    :config (progn 
+              (setq exec-path-from-shell-check-startup-files nil)
+              (exec-path-from-shell-initialize)))
+
+  (use-package fasd
+    :bind ("C-h C-/" . fasd-find-file)
+    :config (global-fasd-mode 1))
+
+  (use-packages flycheck free-keys golden-ratio)
+
+  (use-package ivy
+    :config (progn
+              (setq ivy-use-virtual-buffers t
+                enable-recursive-minibuffers t)
+              (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
+              (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
+              (ivy-mode 1)))
+
+  (use-packages
+    julia-repl
+    lorem-ipsum
+    lsp-mode
+    lsp-ui
+    magit
+    magit-popup
+    markup-faces
+    memoize
+    nodejs-repl
+    ob-restclient
+    olivetti)
+
+  (use-package org-bullets
+    :config 
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+
+  (use-package org-d20)
+  (use-package org-present
+    :config (progn
+              (add-hook 'org-present-mode-hook
+                (lambda ()
+                  (org-present-big)
+                  (org-display-inline-images)
+                  (org-present-hide-cursor)
+                  (org-present-read-only)))
+              (add-hook 'org-present-mode-quit-hook
+                (lambda ()
+                  (org-present-small)
+                  (org-remove-inline-images)
+                  (org-present-show-cursor)
+                  (org-present-read-write)))))
+
+  (use-packages
+    pdf-tools
+    perspective
+    quelpa
+    request
+    restclient)
+
+  (use-package rich-minority
+    :config (progn (setq rm-whitelist
+                     (format "^ \\(%s\\)$"
+                       (mapconcat #'identity '() "\\|")))
+              (rich-minority-mode 1)))
+
+  (use-package rmsbolt)
+
+  (use-package smart-mode-line
+    :config (progn
+              (setq sml/no-confirm-load-theme t
+                sml/theme 'respectful)
+              (sml/setup)))
+       (use-package undo-tree
+         :diminish t
+         :config (progn
+                   (setq undo-tree-visualizer-diff t
+                     undo-tree-visualizer-timestamps t
+                     undo-tree-enable-undo-in-region nil)
+                   (global-undo-tree-mode 1)))
+
+  (use-packages
+    unicode-escape
+    spinner
+    stream
+    sudo-edit
+    swiper
+    tide
+    transient
+    transpose-frame
+    with-editor
+    yasnippet)
+
+  ;; Diminish forms.
+  (diminish 'jiggle-mode)
+  (diminish 'auto-revert-mode)
+  (diminish 'visual-line-mode)
+  (diminish 'undo-tree-mode)
+  (diminish 'abbrev-mode)
+  (diminish 'ivy-mode)
+  (diminish 'which-key-mode)
+#+END_SRC
 
 ** Configuration
 *** Org Babel
     #+BEGIN_SRC emacs-lisp
       ;; All the org-babel-languages.
-      (setq loaded-languages '(C emacs-lisp js perl python shell))
+      (setq loaded-languages '(emacs-lisp js shell))
 
       ;; Build the org-babel-load-languages list.
       ;; This uses `loaded-languages' which should be set.
@@ -292,12 +314,8 @@
         (dolist (language loaded-languages language-list)
           (add-to-list 'language-list (cons language t) t))
         (org-babel-do-load-languages 'org-babel-load-languages language-list))
-
-      (--> "/home/raycat/.opam/system/share/emacs/site-lisp/tuareg-site-file"
-        (when (file-exists-p it) (load it)))
-
     #+END_SRC
-    
+
 *** Keybindings (Hydras)
     #+BEGIN_SRC emacs-lisp
       (defhydra hsh-applications (:color blue)
@@ -570,89 +588,94 @@
 
 *** HSH Leader Hydra
     #+BEGIN_SRC emacs-lisp
-   (defhydra hsh-leader (:color blue)
-     "
+      (defhydra hsh-leader (:color blue)
+        "
 
-     Home Sweet Home
-     ===============
-     _a_: [Applications]      _g_: [Git]              _p_: [Perspective]
-     _b_: [Buffers]           _j_: [Jump To]          _q_: [Quit]
-     _c_: [Config]            _i_: [Insertion]        _r_: [Registers/Resume]
-     _e_: [Eval]              _n_: [Narrowing]        _s_: [Search]
-     _f_: [Files]             _o_: [Org]              _w_: [Windows]
+        Home Sweet Home
+        ===============
+        _a_: [Applications]      _g_: [Git]              _p_: [Perspective]
+        _b_: [Buffers]           _j_: [Jump To]          _q_: [Quit]
+        _c_: [Config]            _i_: [Insertion]        _r_: [Registers/Resume]
+        _e_: [Eval]              _n_: [Narrowing]        _s_: [Search]
+        _f_: [Files]             _o_: [Org]              _w_: [Windows]
 
-     _C-;_: M-x
-     _-_: Eshell, _=_: Full Shell
+        _C-;_: M-x
+        _-_: Eshell, _=_: Full Shell
 
-     "
-     ("a" hsh-applications/body nil)
-     ("b" hsh-buffers/body nil)
-     ("c" hsh-config/body nil)
-     ("e" hsh-eval/body nil)
-     ("f" hsh-files/body nil)
-     ("g" hsh-git/body nil)
-     ("j" hsh-jump-to/body nil)
-     ("i" hsh-insertion/body nil)
-     ("n" hsh-narrowing/body nil)
-     ("o" hsh-org/body nil)
-     ("p" hsh-perspective/body nil)
-     ("q" hsh-quit/body nil)
-     ("r" hsh-registers-resume/body nil)
-     ("s" hsh-search/body nil)
-     ("w" hsh-windows/body nil)
-     ("C-;" counsel-M-x nil)
-     ("C-g" (message "Cancelled HSH.") nil :exit t)
-     ("-" eshell-toggle nil)
-     ("=" settings/open-shell nil)
-     ("TAB" shortcuts/alternate-buffers nil))
+        "
+        ("a" hsh-applications/body nil)
+        ("b" hsh-buffers/body nil)
+        ("c" hsh-config/body nil)
+        ("e" hsh-eval/body nil)
+        ("f" hsh-files/body nil)
+        ("g" hsh-git/body nil)
+        ("j" hsh-jump-to/body nil)
+        ("i" hsh-insertion/body nil)
+        ("n" hsh-narrowing/body nil)
+        ("o" hsh-org/body nil)
+        ("p" hsh-perspective/body nil)
+        ("q" hsh-quit/body nil)
+        ("r" hsh-registers-resume/body nil)
+        ("s" hsh-search/body nil)
+        ("w" hsh-windows/body nil)
+        ("C-;" counsel-M-x nil)
+        ("C-g" (message "Cancelled HSH.") nil :exit t)
+        ("-" eshell-toggle nil)
+        ("=" settings/open-shell nil)
+        ("TAB" shortcuts/alternate-buffers nil))
     #+END_SRC
 
 *** Keybindings (Global)
     #+BEGIN_SRC emacs-lisp
-  (global-unset-key (kbd "C-z"))
-  (global-unset-key (kbd "<f2> <f2>"))
-  (global-unset-key (kbd "C-x C-z"))
-  (global-unset-key (kbd "C-'"))
-  (global-unset-key (kbd "s-m"))
+      (global-unset-key (kbd "C-z"))
+      (global-unset-key (kbd "<f2> <f2>"))
+      (global-unset-key (kbd "C-x C-z"))
+      (global-unset-key (kbd "C-'"))
+      (global-unset-key (kbd "s-m"))
 
-  (global-set-key (kbd "C-SPC") 'shortcuts/select-entire-line)
-  (global-set-key (kbd "C-x 2") 'shortcuts/split-vertically-and-rebalance)
-  (global-set-key (kbd "C-x 3") 'shortcuts/split-horizontally-and-rebalance)
-  (global-set-key (kbd "C-x 9") 'golden-ratio)
-  (global-set-key (kbd "C-x k") 'kill-this-buffer)
-  (global-set-key (kbd "C-c n") 'make-frame)
-  (global-set-key (kbd "C-s") 'swiper)
-  (global-set-key (kbd "s-\\") 'hippie-expand)
-  (global-set-key (kbd "M-x") 'counsel-M-x)
-  (global-set-key (kbd "M-y") 'counsel-yank-pop)
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-  (global-set-key (kbd "C-x o") 'ace-window)
-  (global-set-key (kbd "C-=") 'er/expand-region)
-  (global-set-key (kbd "M-z") 'zap-up-to-char)
-  (global-set-key (kbd "M-Z") 'zap-to-char)
-  (global-set-key (kbd "C-<left>") 'previous-buffer)
-  (global-set-key (kbd "C-<right>") 'next-buffer)
+      (global-set-key (kbd "C-SPC") 'shortcuts/select-entire-line)
+      (global-set-key (kbd "C-x 2") 'shortcuts/split-vertically-and-rebalance)
+      (global-set-key (kbd "C-x 3") 'shortcuts/split-horizontally-and-rebalance)
+      (global-set-key (kbd "C-x 9") 'golden-ratio)
+      (global-set-key (kbd "C-x k") 'kill-this-buffer)
+      (global-set-key (kbd "C-c n") 'make-frame)
+      (global-set-key (kbd "C-s") 'swiper)
+      (global-set-key (kbd "s-\\") 'hippie-expand)
+      (global-set-key (kbd "M-x") 'counsel-M-x)
+      (global-set-key (kbd "M-y") 'counsel-yank-pop)
+      (global-set-key (kbd "C-x C-b") 'ibuffer)
+      (global-set-key (kbd "C-x o") 'ace-window)
+      (global-set-key (kbd "C-=") 'er/expand-region)
+      (global-set-key (kbd "M-z") 'zap-up-to-char)
+      (global-set-key (kbd "M-Z") 'zap-to-char)
+      (global-set-key (kbd "C-<left>") 'previous-buffer)
+      (global-set-key (kbd "C-<right>") 'next-buffer)
 
-  (global-set-key (kbd "C-\'") 'comment-dwim)
-  (global-set-key (kbd "C-;") 'hsh-leader/body)
-  (global-set-key (kbd "C-.") 'iedit-mode)
+      (global-set-key (kbd "C-\'") 'comment-dwim)
+      (global-set-key (kbd "C-;") 'hsh-leader/body)
+      (global-set-key (kbd "C-.") 'iedit-mode)
 
-  (global-set-key (kbd "<f5>") 'compile)
-  (global-set-key (kbd "<f6>") 'shortcuts/save-and-recompile)
-  (global-set-key (kbd "<f7>") 'shortcuts/save-and-recompile-in-place)
-  (global-set-key (kbd "<f8>") 'counsel-mark-ring)
+      (global-set-key (kbd "<f5>") 'compile)
+      (global-set-key (kbd "<f6>") 'shortcuts/save-and-recompile)
+      (global-set-key (kbd "<f7>") 'shortcuts/save-and-recompile-in-place)
+      (global-set-key (kbd "<f8>") 'counsel-mark-ring)
 
-  (global-set-key (kbd "C-M-x") 'transpose-frame)
+      (global-set-key (kbd "C-M-x") 'transpose-frame)
 
-  (global-set-key (kbd "«") 'hippie-expand)
-  (global-set-key (kbd "∑") 'kill-ring-save)
+      (global-set-key (kbd "«") 'hippie-expand)
+      (global-set-key (kbd "∑") 'kill-ring-save)
 
-  (autoload 'zap-up-to-char "misc"
-    "Kill up to, but not including ARGth occurrence of CHAR.
+      (autoload 'zap-up-to-char "misc"
+        "Kill up to, but not including ARGth occurrence of CHAR.
 
-      \(fn arg char)"
-    'interactive)
+          \(fn arg char)"
+        'interactive)
     #+END_SRC
+
+*** User-defined variables
+#+BEGIN_SRC emacs-lisp
+  (setq *user-config-file* "home-sweet-home.org")
+#+END_SRC
 
 *** User-defined functions
     #+BEGIN_SRC emacs-lisp
@@ -695,7 +718,7 @@
       (defun shortcuts/edit-org-init-file ()
         "Opens default-init.org in the current window."
         (interactive)
-        (shortcuts/find-file-in-emacs-d "home-sweet-home.org"))
+        (shortcuts/find-file-in-emacs-d *user-config-file*))
 
       (defun shortcuts/kill-this-buffer ()
         "Kill the current buffer."
@@ -757,7 +780,6 @@
         (end-of-line)
         (set-mark (line-beginning-position)))
     #+END_SRC
-
 ** Quality of Life
    #+BEGIN_SRC emacs-lisp
    (require 'ls-lisp)
@@ -802,9 +824,7 @@
    (setq network-security-level 'low)
 
    (setenv "PAGER" "cat")
-   (setenv "BROWSER" "chromium-browser")
    (setenv "EDITOR" "emacsclient")
-   (setenv "PATH" (concat "/usr/local/bin:/usr/local/sbin:" (getenv "PATH") ":/Library/TeX/texbin"))
 
    (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\r\n\"")
    (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
@@ -930,18 +950,6 @@
    (setq org-duration-format (quote h:mm))
    #+END_SRC
 
-*** Generic Modes
-    #+BEGIN_SRC emacs-lisp
-  (define-generic-mode
-    'simple-haxe-mode
-    '("//")
-    '("break" "case" "cast" "catch" "continue" "default" "do" "dynamic" "else" "extern" "false" "final" "for" "if" "in" "inline" "macro" "new" "null" "return" "switch" "this" "throw" "true" "try" "var" "while" "abstract" "class" "enum" "extends" "function" "implements" "import" "interface" "operator" "overload" "override" "package" "private" "public" "static" "typedef" "untyped" "using")
-    nil
-    nil
-    nil
-    "Generic mode for Haxe source files.")
-    #+END_SRC
-
 ** Dotfiles/Scripts
    #+BEGIN_SRC shell :tangle ~/.zshrc
   # The following lines were added by compinstall
@@ -959,6 +967,7 @@
 
   eval `opam config env`
   # . /Users/rayperry/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+  export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'):0.0
    #+END_SRC
 
    #+BEGIN_SRC shell :tangle ~/.zshenv
