@@ -178,7 +178,7 @@
   (setq-default goggles-pulse t))
 
   (use-package keycast :config (keycast-mode 1))
-  
+
   (use-packages gdscript-mode)
 
   (use-package doom-themes
@@ -190,7 +190,7 @@
               (doom-themes-org-config)))
 
   (use-package emmet-mode
-    :config (progn 
+    :config (progn
               (add-hook 'sgml-mode-hook 'emmet-mode)
               (add-hook 'css-mode-hook 'emmet-mode)
               (add-hook 'mhtml-mode-hook 'emmet-mode)))
@@ -201,7 +201,7 @@
     :config (eshell-git-prompt-use-theme 'git-radar))
 
   (use-package exec-path-from-shell
-    :config (progn 
+    :config (progn
               (setq exec-path-from-shell-check-startup-files nil)
               (exec-path-from-shell-initialize)))
 
@@ -233,7 +233,7 @@
     olivetti)
 
   (use-package org-bullets
-    :config 
+    :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
 
   (use-package org-d20)
@@ -381,7 +381,7 @@
         _s_: Replace last sexp
 
         "
-        ("s" shortcuts/replace-last-sexp nil))
+        ("s" crux-eval-and-replace nil))
 
       (defhydra hsh-files (:color blue)
         "
@@ -539,9 +539,9 @@
         HSH/Search
         ==========
 
-        Rg          
-        --          
-        _f_: Files  
+        Rg
+        --
+        _f_: Files
 
         "
 
@@ -574,7 +574,7 @@
 
           _s_: Switch Perspective
           _a_: Add Buffer to Perspective
-          _k_: Remove Buffer from Perspective 
+          _k_: Remove Buffer from Perspective
           _r_: Rename Perspective
           _d_: Delete Perspective
 
@@ -651,6 +651,11 @@
       (global-set-key (kbd "C-<left>") 'previous-buffer)
       (global-set-key (kbd "C-<right>") 'next-buffer)
 
+      ;; Crux commands
+      (global-set-key (kbd "C-c d") 'crux-duplicate-current-line-or-region)
+      (global-set-key (kbd "C-c o") 'crux-open-with)
+      (global-set-key (kbd "C-c n") 'crux-cleanup-buffer-or-region)
+
       (global-set-key (kbd "C-\'") 'comment-dwim)
       (global-set-key (kbd "C-;") 'hsh-leader/body)
       (global-set-key (kbd "C-.") 'iedit-mode)
@@ -699,12 +704,6 @@
         "Opens a shell."
         (interactive)
         (ansi-term "/bin/zsh" "zsh"))
-
-      (defun shortcuts/replace-last-sexp ()
-        (interactive)
-        (let ((value (eval (preceding-sexp))))
-          (kill-sexp -1)
-          (insert (format "%s" value))))
 
       (defun shortcuts/find-file-in-emacs-d (file)
         "This finds FILE in the .emacs.d directory."
@@ -759,7 +758,7 @@
         "Saves all files with changes and compiles."
         (interactive)
         (save-some-buffers 1)
-        (save-window-excursion 
+        (save-window-excursion
           (recompile)))
 
       (defun shortcuts/split-vertically-and-rebalance ()
@@ -834,7 +833,7 @@
                                       (proc (get-buffer-process buff)))
                                  (lexical-let ((buff buff))
                                    (set-process-sentinel proc (lambda (process event)
-                                                                (if (string= event "finished\n")                      
+                                                                (if (string= event "finished\n")
                                                                     (kill-buffer buff))))))))
 
    (setq frame-title-format
