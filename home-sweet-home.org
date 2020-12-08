@@ -149,6 +149,7 @@
     d-mode
     dart-mode
     flutter
+    gdscript-mode
     janet-mode
     julia-mode
     kotlin-mode
@@ -171,14 +172,10 @@
   ;; Temporary or packages that I want to test.
 
   (use-package goggles
-  :demand t
-  :config
-  (goggles-mode)
-  (setq-default goggles-pulse t))
-
-  (use-package keycast :config (keycast-mode 1))
-
-  (use-packages gdscript-mode)
+    :demand t
+    :config
+    (goggles-mode)
+    (setq-default goggles-pulse t))
 
   (use-package doom-themes
     :config (progn
@@ -781,6 +778,8 @@
 ** Quality of Life
    #+BEGIN_SRC emacs-lisp
    (require 'ls-lisp)
+
+   (global-display-line-numbers-mode)
 
    (setq-default indent-tabs-mode nil
                  auto-hscroll-mode nil)
