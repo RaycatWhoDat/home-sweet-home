@@ -119,10 +119,10 @@
 ** Packages
 #+BEGIN_SRC emacs-lisp
   ;; Essential packages.
-  (use-packages restart-emacs cl-lib async bind-key paradox crux)
+  (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro)
 
   ;; High priority graphical packages.
-  (use-packages all-the-icons diminish)
+  (use-packages all-the-icons diminish hyperbole)
 
   ;; High priority movement packages.
   (use-packages ace-window buffer-move hydra iedit)
@@ -500,7 +500,7 @@
         _f_: Find File
 
         "
-        ("f" project-find-file nil))
+        ("f" projectile-find-file nil))
 
       (defhydra hsh-quit (:color blue)
         "
@@ -778,8 +778,6 @@
 ** Quality of Life
    #+BEGIN_SRC emacs-lisp
    (require 'ls-lisp)
-
-   (global-display-line-numbers-mode)
 
    (setq-default indent-tabs-mode nil
                  auto-hscroll-mode nil)
