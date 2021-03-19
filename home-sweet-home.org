@@ -41,10 +41,6 @@
        (toggle-read-only))
      (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
-     (require 'eshell)
-     (defun eshell-handle-ansi-color ()
-       (ansi-color-apply-on-region eshell-last-output-start eshell-last-output-end))
-     (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
    #+END_SRC
 
 *** Utilities
@@ -119,6 +115,8 @@
 ** Packages
 #+BEGIN_SRC emacs-lisp
   ;; Essential packages.
+  (use-packages s f ht ov dash seq stream request el-patch)
+
   (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro)
 
   ;; High priority graphical packages.
