@@ -126,7 +126,7 @@
   (use-packages ace-window buffer-move hydra iedit)
 
   ;; Company backends.
-  (use-packages company-lsp company-tabnine)
+  (use-packages company-tabnine)
 
   (use-package company
     :config (progn
@@ -811,8 +811,7 @@
                        org-interactive-query
                        org-man
                        org-collector
-                       org-panel
-                       org-screen))
+                       org-panel))
 
    (setq network-security-level 'low)
 
