@@ -45,59 +45,59 @@
 
 *** Utilities
     #+BEGIN_SRC emacs-lisp :tangle init.el
-  (defmacro use-packages (&rest packages)
-    "Creates `use-package` declarations for each package in PACKAGES."
-    (let ((results '()))
-      (dolist (package packages)
-        (push `(use-package ,package) results))
-      `(progn ,@(nreverse results))))
+      (defmacro use-packages (&rest packages)
+        "Creates `use-package` declarations for each package in PACKAGES."
+        (let ((results '()))
+          (dolist (package packages)
+            (push `(use-package ,package) results))
+          `(progn ,@(nreverse results))))
 
-  (defmacro qw (&rest symbols)
-    "Returns a quoted list of strings."
-    `(list ,@(mapcar (lambda (symbol) (format "%s" symbol)) symbols)))
+      (defmacro qw (&rest symbols)
+        "Returns a quoted list of strings."
+        `(list ,@(mapcar (lambda (symbol) (format "%s" symbol)) symbols)))
 
-  (defmacro %% (number &rest divisors)
-    "Returns T or NIL if NUMBER is evenly divisible by all DIVISORS."
-    `(and ,@(mapcar (lambda (divisor) `(zerop (mod ,number ,divisor))) divisors)))
+      (defmacro %% (number &rest divisors)
+        "Returns T or NIL if NUMBER is evenly divisible by all DIVISORS."
+        `(and ,@(mapcar (lambda (divisor) `(zerop (mod ,number ,divisor))) divisors)))
 
-  (defmacro between (number min max)
-    "Returns T or NIL if NUMBER is between MIN and MAX, inclusive."
-    `(and (>= ,number ,min) (<= ,number ,max)))
+      (defmacro between (number min max)
+        "Returns T or NIL if NUMBER is between MIN and MAX, inclusive."
+        `(and (>= ,number ,min) (<= ,number ,max)))
 
-  (defmacro polymod (number &rest divisors)
-    "Returns a list of modulo results with the remainder as the first element."
-    (let ((mutnum number)
-           (results '()))
-      (dolist (divisor divisors)
-        (setq results (cons (mod mutnum divisor) results))
-        (setq mutnum (/ mutnum divisor)))
-      `(reverse (list ,mutnum ,@results))))
+      (defmacro polymod (number &rest divisors)
+        "Returns a list of modulo results with the remainder as the first element."
+        (let ((mutnum number)
+               (results '()))
+          (dolist (divisor divisors)
+            (setq results (cons (mod mutnum divisor) results))
+            (setq mutnum (/ mutnum divisor)))
+          `(reverse (list ,mutnum ,@results))))
 
-  (defmacro letter-sequence (start end)
-    "Returns a list of quoted letters."
-    `(mapcar
-       'char-to-string
-       (remove-if-not
-         (lambda (character) (or (between character 65 90) (between character 97 122)))
-         (number-sequence (string-to-char ,start) (string-to-char ,end)))))
+      (defmacro letter-sequence (start end)
+        "Returns a list of quoted letters."
+        `(mapcar
+           'char-to-string
+           (remove-if-not
+             (lambda (character) (or (between character 65 90) (between character 97 122)))
+             (number-sequence (string-to-char ,start) (string-to-char ,end)))))
 
-  (defun current-line ()
-    "Returns the current line number at point."
-    (save-restriction
-      (widen)
-      (save-excursion
-        (beginning-of-line)
-          (1+ (count-lines 1 (point))))))
+      (defun current-line ()
+        "Returns the current line number at point."
+        (save-restriction
+          (widen)
+          (save-excursion
+            (beginning-of-line)
+            (1+ (count-lines 1 (point))))))
 
-  (defun insert-logpoint (&optional message)
-    "Given a string called MESSAGE, insert a logpoint that contains
-  that message."
-    (interactive "sOptional message: ")
-    (insert
-      (format
-        "\nconsole.log(%S, %S);"
-        (concat (buffer-name) ":" (number-to-string (1+ (current-line))) ":")
-        (if (zerop (length message)) "Logpoint!" message))))
+      (defun insert-logpoint (&optional message)
+        "Given a string called MESSAGE, insert a logpoint that contains
+            that message."
+        (interactive "sOptional message: ")
+        (insert
+          (format
+            "\nconsole.log(%S, %S);"
+            (concat (buffer-name) ":" (number-to-string (1+ (current-line))) ":")
+            (if (zerop (length message)) "Logpoint!" message))))
     #+END_SRC
 
 *** Initialization Postscript
