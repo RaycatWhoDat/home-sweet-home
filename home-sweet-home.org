@@ -306,7 +306,7 @@
 *** Org Babel
     #+BEGIN_SRC emacs-lisp
       ;; All the org-babel-languages.
-      (setq loaded-languages '(emacs-lisp js shell raku http))
+      (setq loaded-languages '(emacs-lisp js rust shell http))
 
       ;; Build the org-babel-load-languages list.
       ;; This uses `loaded-languages' which should be set.
