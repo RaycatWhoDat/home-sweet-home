@@ -962,8 +962,6 @@
 
   source "$HOME/minimal.zsh"
 
-  eval `opam config env`
-  # . /Users/rayperry/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
   export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'):0.0
    #+END_SRC
 
