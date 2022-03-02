@@ -867,8 +867,8 @@
      ;; I prefer Iosevka Term, but it can be replaced with something else.
      ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
      (when (find-font (font-spec :name "Iosevka Term"))
-       (set-face-attribute 'default nil :font "Iosevka Term-12")
-       (add-to-list 'default-frame-alist '(font . "Iosevka Term-12")))
+       (set-face-attribute 'default nil :font "Iosevka Term-16")
+       (add-to-list 'default-frame-alist '(font . "Iosevka Term-16")))
 
      (setq comint-scroll-to-bottom-on-input t
            comint-scroll-to-bottom-on-output nil
@@ -949,7 +949,7 @@
    #+END_SRC
 
 ** Dotfiles/Scripts
-   #+BEGIN_SRC shell :tangle ~/.zshrc
+#+BEGIN_SRC shell :tangle ~/.zshrc
   # The following lines were added by compinstall
   zstyle :compinstall filename "$HOME/.zshrc"
 
@@ -963,9 +963,9 @@
   source "$HOME/minimal.zsh"
 
   export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'):0.0
-   #+END_SRC
+#+END_SRC
 
-   #+BEGIN_SRC shell :tangle ~/.zshenv
+#+BEGIN_SRC shell :tangle ~/.zshenv
   # Lines configured by zsh-newuser-install
   HISTFILE=~/.histfile
   HISTSIZE=1000
@@ -987,7 +987,9 @@
   export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
   export PATH="$HOME/.local/bin:$PATH"
   export PATH="$HOME/Library/Python/3.7/lib/python/site-packages:$PATH"
-   #+END_SRC
+
+  eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
+#+END_SRC
 
    #+BEGIN_SRC shell :tangle ~/minimal.zsh
 # Global settings
