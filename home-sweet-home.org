@@ -142,6 +142,7 @@
     battle-haxe
     d-mode
     dart-mode
+    fennel-mode
     flutter
     gdscript-mode
     go-mode
