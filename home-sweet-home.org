@@ -794,7 +794,8 @@
         kept-new-versions 3
         kept-old-versions 2
         version-control t
-        vc-cvs-stay-local nil)
+        vc-cvs-stay-local nil
+        undo-tree-auto-save-history nil)
 
      (setq org-mode-startup-message "")
      (setq x-select-enable-clipboard t)
@@ -988,6 +989,7 @@
   export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
   export PATH="$HOME/.local/bin:$PATH"
   export PATH="$HOME/Library/Python/3.7/lib/python/site-packages:$PATH"
+  export PATH="/opt/ActiveTcl-8.6/bin:$PATH"
 
   eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
 #+END_SRC
