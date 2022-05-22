@@ -171,6 +171,17 @@
 
   (use-package cargo)
 
+  (use-package detached
+    :init
+    (detached-init)
+    :bind (([remap async-shell-command] . detached-shell-command)
+            ([remap compile] . detached-compile)
+            ([remap recompile] . detached-compile-recompile)
+            ([remap detached-open-session] . detached-consult-session))
+    :custom ((detached-env "~/.zshenv")
+              (detached-show-output-on-attach t)
+              (detached-shell-history-file "~/.bash_history")))
+  
   (use-package goggles
     :demand t
     :config
@@ -251,9 +262,11 @@
                   (org-present-show-cursor)
                   (org-present-read-write)))))
 
+  (use-package pdf-tools)
+  (use-package perspective
+    :config (setq persp-suppress-no-prefix-key-warning t))
+
   (use-packages
-    pdf-tools
-    perspective
     quelpa
     redacted
     request
@@ -308,6 +321,9 @@
     #+BEGIN_SRC emacs-lisp
       ;; All the org-babel-languages.
       (setq loaded-languages '(emacs-lisp js rust shell http))
+
+      (when (boundp 'org-babel-raku-wrapper)
+        (setq loaded-languages (append loaded-languages '(raku))))
 
       ;; Build the org-babel-load-languages list.
       ;; This uses `loaded-languages' which should be set.
@@ -785,17 +801,23 @@
      (require 'ls-lisp)
 
      (setq-default indent-tabs-mode nil
-                   auto-hscroll-mode nil)
+       auto-hscroll-mode nil)
 
      (setq backup-by-copying t
-        backup-directory-alist `(("." . ,(concat user-emacs-directory "backups")))
-        tramp-backup-directory-alist backup-directory-alist
-        delete-old-versions t
-        kept-new-versions 3
-        kept-old-versions 2
-        version-control t
-        vc-cvs-stay-local nil
-        undo-tree-auto-save-history nil)
+       backup-directory-alist `(("." . ,(concat user-emacs-directory "backups")))
+       tramp-backup-directory-alist backup-directory-alist
+       delete-old-versions t
+       kept-new-versions 3
+       kept-old-versions 2
+       version-control t
+       vc-cvs-stay-local nil
+       undo-tree-auto-save-history nil)
+
+     (defun save-all ()
+       (interactive)
+       (save-some-buffers t))
+
+     (add-hook 'focus-out-hook 'save-all)
 
      (setq org-mode-startup-message "")
      (setq x-select-enable-clipboard t)
@@ -813,13 +835,13 @@
        (winner-mode 1))
 
      (setq org-modules '(org-habit
-                         org-irc
-                         org-eval
-                         org-expiry
-                         org-interactive-query
-                         org-man
-                         org-collector
-                         org-panel))
+                          org-irc
+                          org-eval
+                          org-expiry
+                          org-interactive-query
+                          org-man
+                          org-collector
+                          org-panel))
 
      (setq network-security-level 'low)
 
@@ -831,27 +853,27 @@
 
      (add-hook 'term-exec-hook (lambda ()
                                  (let* ((buff (current-buffer))
-                                        (proc (get-buffer-process buff)))
+                                         (proc (get-buffer-process buff)))
                                    (lexical-let ((buff buff))
                                      (set-process-sentinel proc (lambda (process event)
                                                                   (if (string= event "finished\n")
-                                                                      (kill-buffer buff))))))))
+                                                                    (kill-buffer buff))))))))
 
      (setq frame-title-format
-           '((:eval (if (buffer-file-name)
-                        (abbreviate-file-name (buffer-file-name))
-                      "%b"))))
+       '((:eval (if (buffer-file-name)
+                  (abbreviate-file-name (buffer-file-name))
+                  "%b"))))
 
      (setq hippie-expand-try-functions-list '(try-expand-dabbrev
-                                              try-expand-dabbrev-all-buffers
-                                              try-expand-dabbrev-from-kill
-                                              try-complete-file-name-partially
-                                              try-complete-file-name
-                                              try-expand-all-abbrevs
-                                              try-expand-list
-                                              try-expand-line
-                                              try-complete-lisp-symbol-partially
-                                              try-complete-lisp-symbol))
+                                               try-expand-dabbrev-all-buffers
+                                               try-expand-dabbrev-from-kill
+                                               try-complete-file-name-partially
+                                               try-complete-file-name
+                                               try-expand-all-abbrevs
+                                               try-expand-list
+                                               try-expand-line
+                                               try-complete-lisp-symbol-partially
+                                               try-complete-lisp-symbol))
 
      ;; For the dark menu bar.
      (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
@@ -868,40 +890,40 @@
 
      ;; I prefer Iosevka Term, but it can be replaced with something else.
      ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
-     (when (find-font (font-spec :name "Iosevka Term"))
-       (set-face-attribute 'default nil :font "Iosevka Term-16")
-       (add-to-list 'default-frame-alist '(font . "Iosevka Term-16")))
+     (let ((font-family "Iosevka Term"))
+       (when (find-font (font-spec :name font-family))
+         (set-face-attribute 'default nil :family font-family :width 'normal :height 120 :underline nil :weight 'normal)))
 
      (setq comint-scroll-to-bottom-on-input t
-           comint-scroll-to-bottom-on-output nil
-           create-lockfiles nil
-           disabled-command-function nil
-           display-time-24hr-format t
-           eshell-error-if-no-glob t
-           eshell-hist-ignoredups t
-           eshell-list-files-after-cd nil
-           eshell-ls-initial-args "-alh"
-           eshell-prefer-lisp-functions nil
-           eshell-save-history-on-exit t
-           eshell-scroll-to-bottom-on-input t
-           eshell-scroll-to-bottom-on-output nil
-           gc-cons-threshold 50000000
-           inhibit-startup-message t
-           initial-major-mode 'fundamental-mode
-           initial-scratch-message org-mode-startup-message
-           js-indent-level 2
-           typescript-indent-level 2
-           kill-whole-line t
-           large-file-warning-threshold 100000000
-           load-prefer-newer t
-           ls-lisp-use-insert-directory-program nil
-           next-line-add-newlines t
-           org-checkbox-hierarchical-statistics nil
-           org-clock-idle-time 10
-           org-confirm-babel-evaluate nil
-           sentence-end-double-space nil
-           use-dialog-box nil
-           visible-bell t)
+       comint-scroll-to-bottom-on-output nil
+       create-lockfiles nil
+       disabled-command-function nil
+       display-time-24hr-format t
+       eshell-error-if-no-glob t
+       eshell-hist-ignoredups t
+       eshell-list-files-after-cd nil
+       eshell-ls-initial-args "-alh"
+       eshell-prefer-lisp-functions nil
+       eshell-save-history-on-exit t
+       eshell-scroll-to-bottom-on-input t
+       eshell-scroll-to-bottom-on-output nil
+       gc-cons-threshold 50000000
+       inhibit-startup-message t
+       initial-major-mode 'fundamental-mode
+       initial-scratch-message org-mode-startup-message
+       js-indent-level 2
+       typescript-indent-level 2
+       kill-whole-line t
+       large-file-warning-threshold 100000000
+       load-prefer-newer t
+       ls-lisp-use-insert-directory-program nil
+       next-line-add-newlines t
+       org-checkbox-hierarchical-statistics nil
+       org-clock-idle-time 10
+       org-confirm-babel-evaluate nil
+       sentence-end-double-space nil
+       use-dialog-box nil
+       visible-bell t)
 
      (defun setup-tide-mode ()
        (interactive)
@@ -916,14 +938,14 @@
      (when (fboundp 'persp-mode) (persp-mode 1))
 
      (add-hook 'html-mode-hook
-               (lambda ()
-                 ;; Default indentation is usually 2 spaces, changing to 4.
-                 (set (make-local-variable 'sgml-basic-offset) 4)))
+       (lambda ()
+         ;; Default indentation is usually 2 spaces, changing to 4.
+         (set (make-local-variable 'sgml-basic-offset) 4)))
 
      (add-hook 'java-mode-hook (lambda ()
                                  (setq c-basic-offset 4
-                                       tab-width 4
-                                       indent-tabs-mode t)))
+                                   tab-width 4
+                                   indent-tabs-mode t)))
 
      (add-hook 'before-save-hook 'tide-format-before-save)
      (add-hook 'typescript-mode-hook #'setup-tide-mode)
@@ -938,9 +960,9 @@
      ;; Allows TAB to select and complete at the same time.
      (company-tng-configure-default)
      (setq company-frontends
-           '(company-tng-frontend
-             company-pseudo-tooltip-frontend
-             company-echo-metadata-frontend))
+       '(company-tng-frontend
+          company-pseudo-tooltip-frontend
+          company-echo-metadata-frontend))
 
      (setq counsel-rg-base-command "rg -i -M 120 --no-heading --line-number --color never %s .")
      (setq lisp-indent-offset 2)
