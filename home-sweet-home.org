@@ -178,7 +178,7 @@
             ([remap compile] . detached-compile)
             ([remap recompile] . detached-compile-recompile)
             ([remap detached-open-session] . detached-consult-session))
-    :custom ((detached-env "~/.zshenv")
+    :custom ((detached-env "/tmp/detached")
               (detached-show-output-on-attach t)
               (detached-shell-history-file "~/.bash_history")))
   
@@ -278,7 +278,7 @@
                        (mapconcat #'identity '() "\\|")))
               (rich-minority-mode 1)))
 
-  (use-packages rmsbolt rustic sly)
+  (use-packages rmsbolt sly)
 
   (use-package smart-mode-line
     :config (progn
