@@ -1012,6 +1012,8 @@
   export PATH="$HOME/.local/bin:$PATH"
   export PATH="$HOME/Library/Python/3.7/lib/python/site-packages:$PATH"
   export PATH="/opt/ActiveTcl-8.6/bin:$PATH"
+  export DENO_INSTALL="/home/rayperry/.deno"
+  export PATH="$DENO_INSTALL/bin:$PATH"
 
   eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
 #+END_SRC
