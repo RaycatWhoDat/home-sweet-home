@@ -161,6 +161,9 @@
     rust-mode
     ssass-mode
     svelte-mode
+    swift-mode
+    swift-helpful
+    helpful
     typescript-mode
     yaml-mode)
 
@@ -171,17 +174,6 @@
 
   (use-package cargo)
 
-  (use-package detached
-    :init
-    (detached-init)
-    :bind (([remap async-shell-command] . detached-shell-command)
-            ([remap compile] . detached-compile)
-            ([remap recompile] . detached-compile-recompile)
-            ([remap detached-open-session] . detached-consult-session))
-    :custom ((detached-env "/tmp/detached")
-              (detached-show-output-on-attach t)
-              (detached-shell-history-file "~/.bash_history")))
-  
   (use-package goggles
     :demand t
     :config
@@ -892,7 +884,7 @@
      ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
      (let ((font-family "Iosevka Term"))
        (when (find-font (font-spec :name font-family))
-         (set-face-attribute 'default nil :family font-family :width 'normal :height 120 :underline nil :weight 'normal)))
+         (set-face-attribute 'default nil :family font-family :width 'normal :height 160 :underline nil :weight 'normal)))
 
      (setq comint-scroll-to-bottom-on-input t
        comint-scroll-to-bottom-on-output nil
@@ -1014,6 +1006,7 @@
   export PATH="/opt/ActiveTcl-8.6/bin:$PATH"
   export DENO_INSTALL="/home/rayperry/.deno"
   export PATH="$DENO_INSTALL/bin:$PATH"
+  export EDITOR="/Applications/Emacs.app/Contents/MacOS/Emacs"
 
   eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
 #+END_SRC

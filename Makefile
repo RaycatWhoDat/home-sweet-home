@@ -1,9 +1,9 @@
 .PHONY: windows linux-ubuntu linux-other macos tangle nvm
 
 EMACS = emacs
-ESSENTIALS = coreutils moreutils git zsh screen byobu python3 luajit luarocks
-PHASE_1 = lua5.3 fasd vim jq miller curl entr gcc ispell sbcl opam
-PHASE_2 = comby gnutls gource ncurses ripgrep gpatch
+ESSENTIALS = coreutils moreutils git zsh python3 luajit luarocks
+PHASE_1 = lua5.3 vim jq miller curl entr gcc ispell
+PHASE_2 = gnutls ncurses ripgrep gpatch
 
 all: tangle
 
@@ -31,8 +31,6 @@ linux-other:
 
 macos:
 	@echo "Building up a MacOS foundation..."
-
-	@/usr/bin/ruby -e "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 	@echo "Installing essentials..."
 	-@brew install $(ESSENTIALS)
