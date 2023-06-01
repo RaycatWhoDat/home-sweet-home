@@ -1,4 +1,4 @@
-#+TITLE: Home Sweet Home v2.6
+#+TITLE: Home Sweet Home v2.7
 #+AUTHOR: RaycatWhoDat
 #+STARTUP: showall
 #+PROPERTY: header-args :tangle config.el
@@ -96,8 +96,8 @@ highest priority packages coming up first.
         (beginning-of-line)
         (1+ (count-lines 1 (point))))))
 
-  (defun insert-logpoint (&optional message)
-    "Given a string called MESSAGE, insert a logpoint that contains
+  (defun insert-js-logpoint (&optional message)
+    "Given a string called MESSAGE, insert a JS-style logpoint that contains
         that message."
     (interactive "sOptional message: ")
     (insert
@@ -122,7 +122,7 @@ highest priority packages coming up first.
 ** Packages
 #+BEGIN_SRC emacs-lisp
   ;; Essential packages.
-  (use-packages s f ht ov dash seq stream request el-patch)
+  (use-packages s f ht ov dash seq stream request el-patch change-inner)
 
   (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro)
 
@@ -130,7 +130,7 @@ highest priority packages coming up first.
   (use-packages all-the-icons diminish hyperbole)
 
   ;; High priority movement packages.
-  (use-packages ace-window buffer-move hydra iedit)
+  (use-packages ace-window buffer-move hydra iedit projectile)
 
   (use-package company
     :straight t
@@ -150,12 +150,14 @@ highest priority packages coming up first.
 
   ;; Major modes and packages for languages.
   (use-packages
-    battle-haxe
+    clojure-mode
     d-mode
     dart-mode
+    docker-compose-mode
+    dockerfile-mode
     fennel-mode
-    flutter
     gdscript-mode
+    graphql-mode
     go-mode
     janet-mode
     julia-mode
@@ -165,34 +167,27 @@ highest priority packages coming up first.
     markdown-mode
     nim-mode
     pandoc-mode
-    projectile
+    php-mode
     raku-mode
     racket-mode
     rjsx-mode
     rust-mode
     ssass-mode
-    svelte-mode
+    solidity-mode
     swift-mode
-    swift-helpful
-    helpful
     typescript-mode
     yaml-mode)
 
   (use-package web-mode
     :straight t
-    :config (progn (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))))
-
-  ;; Temporary or packages that I want to test.
+    :config (progn
+              (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-mode))
+              (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+              (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+              (add-to-list 'auto-mode-alist '("\\.svelte\\'" . web-mode))))
 
   (use-package cargo
     :straight t)
-
-  (use-package goggles
-    :straight t
-    :demand t
-    :config
-    (goggles-mode)
-    (setq-default goggles-pulse t))
 
   (use-package doom-themes
     :straight t
@@ -225,9 +220,7 @@ highest priority packages coming up first.
   (use-packages 
     flycheck
     free-keys
-    golden-ratio
-    graphql
-    graphql-mode)
+    golden-ratio)
 
   (use-package ivy
     :straight t
@@ -239,7 +232,6 @@ highest priority packages coming up first.
               (ivy-mode 1)))
 
   (use-packages
-    julia-repl
     lorem-ipsum
     lsp-mode
     lsp-ui
@@ -248,9 +240,11 @@ highest priority packages coming up first.
     markup-faces
     memoize
     nodejs-repl
+    ob-async
     ob-http
+    ob-raku
     ob-restclient
-    ob-rust
+    ob-typescript
     olivetti)
 
   (use-package org-bullets
@@ -283,7 +277,6 @@ highest priority packages coming up first.
 
   (use-packages
     quelpa
-    redacted
     request
     restclient)
 
@@ -294,7 +287,7 @@ highest priority packages coming up first.
                        (mapconcat #'identity '() "\\|")))
               (rich-minority-mode 1)))
 
-  (use-packages rmsbolt sly)
+  (use-packages rmsbolt)
 
   (use-package smart-mode-line
     :straight t
@@ -314,8 +307,6 @@ highest priority packages coming up first.
 
   (use-packages
     unicode-escape
-    spinner
-    stream
     sudo-edit
     swiper
     tide
@@ -333,6 +324,8 @@ highest priority packages coming up first.
   (require 'tsi-typescript)
   (require 'tsi-json)
 
+  (straight-use-package '(odin-mode :type git :host github :repo "mattt-b/odin-mode"))
+
   ;; Diminish forms.
   (diminish 'jiggle-mode)
   (diminish 'auto-revert-mode)
@@ -347,7 +340,7 @@ highest priority packages coming up first.
 *** Org Babel
 #+BEGIN_SRC emacs-lisp
   ;; All the org-babel-languages.
-  (setq loaded-languages '(emacs-lisp js rust shell http))
+  (setq loaded-languages '(emacs-lisp js typescript shell http))
 
   (when (boundp 'org-babel-raku-wrapper)
     (setq loaded-languages (append loaded-languages '(raku))))
@@ -917,7 +910,7 @@ highest priority packages coming up first.
 
   ;; I prefer Iosevka Term, but it can be replaced with something else.
   ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
-  (let ((font-family "Iosevka Term"))
+  (let ((font-family "Iosevka Nerd Font Mono"))
     (when (find-font (font-spec :name font-family))
       (set-face-attribute 'default nil :family font-family :width 'normal :height 160 :underline nil :weight 'normal)))
 
@@ -969,11 +962,6 @@ highest priority packages coming up first.
       ;; Default indentation is usually 2 spaces, changing to 4.
       (set (make-local-variable 'sgml-basic-offset) 4)))
 
-  (add-hook 'java-mode-hook (lambda ()
-                              (setq c-basic-offset 4
-                                tab-width 4
-                                indent-tabs-mode t)))
-
   (add-hook 'before-save-hook 'tide-format-before-save)
   (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
@@ -1012,44 +1000,25 @@ highest priority packages coming up first.
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
   source "$HOME/minimal.zsh"
-  source "$HOME/poloniex/aws-auth-scripts/aws-auth.sh"
 
-  export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'):0.0
+  eval $(luarocks --lua-dir=/usr/local/bin --lua-version=5.1 path)
+  source "$HOME/.zshenv"
+  echo "Set LUA_PATH, LUA_CPATH, PKG_CONFIG_PATH, ANDROID_HOME, LDFLAGS, CPPFLAGS, and EDITOR when you can."
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/.zshenv
-  # Lines configured by zsh-newuser-install
-  HISTFILE=~/.histfile
-  HISTSIZE=1000
-  SAVEHIST=1000
-  bindkey -e
-  # End of lines configured by zsh-newuser-install
+    HISTFILE=~/.histfile
+    HISTSIZE=1000
+    SAVEHIST=1000
+    bindkey -e
 
-  export PATH="$HOME/.nimble/bin:$PATH"
-  export PATH="/usr/lib/dart/bin:$PATH"
-  export PATH="$HOME/flutter/flutter/bin:$PATH"
-  export PATH="$HOME/.raku/bin:$PATH"
-  export PATH="$CEDEV/bin:$PATH"
-  export PATH="$HOME/.local/bin:$PATH"
-  export PATH="$HOME/Library/Python/3.7/lib/python/site-packages:$PATH"
-  export PATH="$HOME/Library/Python/3.8/bin:$PATH"
-  export PATH="$HOME/Library/Python/3.8/lib/python/site-packages:$PATH"
-  export PATH="/opt/ActiveTcl-8.6/bin:$PATH"
-  export PATH="$DENO_INSTALL/bin:$PATH"
-  export PATH=$(pyenv root)/shims:$PATH
-  export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
-
-  export AWS_SDK_LOAD_CONFIG=true
-  export NVM_DIR="$HOME/.nvm"
-  export MONO_GAC_PREFIX="/usr/local"
-  export LD_LIBRARY_PATH="/usr/local/lib"
-  export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
-  export HAXE_STD_PATH="/usr/local/lib/haxe/std"
-  export CEDEV="$HOME/Desktop/CEDev"
-  export CPLUS_INCLUDE_PATH="/usr/include/c++/8:/usr/include/x86_64-linux-gnu/c++/8"
-  export DENO_INSTALL="$HOME/.deno"
-  export EDITOR="/Applications/Emacs.app/Contents/MacOS/Emacs"
-  eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
+    export PATH="$HOME/.raku/bin:$PATH"
+    export PATH="$HOME/.local/bin:$PATH"
+    export AWS_SDK_LOAD_CONFIG=true
+    export NVM_DIR="$HOME/.nvm"
+    export DENO_INSTALL="$HOME/.deno"
+    eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
+    export PATH="$HOME/.luarocks/bin:$PATH"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
