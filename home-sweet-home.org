@@ -176,7 +176,8 @@ highest priority packages coming up first.
     solidity-mode
     swift-mode
     typescript-mode
-    yaml-mode)
+    yaml-mode
+    zig-mode)
 
   (use-package web-mode
     :straight t
@@ -197,6 +198,8 @@ highest priority packages coming up first.
               (load-theme 'doom-one t)
               (doom-themes-visual-bell-config)
               (doom-themes-org-config)))
+
+  (use-packages ob-dsq)
 
   (use-package emmet-mode
     :straight t
@@ -296,6 +299,8 @@ highest priority packages coming up first.
                 sml/theme 'respectful)
               (sml/setup)))
 
+  (use-packages queue diff)
+
   (use-package undo-tree
     :straight t
     :diminish t
@@ -313,7 +318,13 @@ highest priority packages coming up first.
     transient
     transpose-frame
     with-editor
-    yasnippet)
+    yasnippet
+    annotate)
+
+  (use-package dirvish
+    :straight t
+    :config (progn
+              (dirvish-override-dired-mode)))
 
   (straight-use-package 'tree-sitter)
   (straight-use-package 'tree-sitter-langs)
@@ -912,7 +923,7 @@ highest priority packages coming up first.
   ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
   (let ((font-family "Iosevka Nerd Font Mono"))
     (when (find-font (font-spec :name font-family))
-      (set-face-attribute 'default nil :family font-family :width 'normal :height 160 :underline nil :weight 'normal)))
+      (set-face-attribute 'default nil :family font-family :width 'normal :height 120 :underline nil :weight 'normal)))
 
   (setq comint-scroll-to-bottom-on-input t
     comint-scroll-to-bottom-on-output nil
@@ -1001,24 +1012,29 @@ highest priority packages coming up first.
 
   source "$HOME/minimal.zsh"
 
-  eval $(luarocks --lua-dir=/usr/local/bin --lua-version=5.1 path)
+  eval $(luarocks --lua-dir=/usr/bin --lua-version=5.1 path)
   source "$HOME/.zshenv"
-  echo "Set LUA_PATH, LUA_CPATH, PKG_CONFIG_PATH, ANDROID_HOME, LDFLAGS, CPPFLAGS, and EDITOR when you can."
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/.zshenv
-    HISTFILE=~/.histfile
-    HISTSIZE=1000
-    SAVEHIST=1000
-    bindkey -e
+  HISTFILE=~/.histfile
+  HISTSIZE=1000
+  SAVEHIST=1000
+  bindkey -e
 
-    export PATH="$HOME/.raku/bin:$PATH"
-    export PATH="$HOME/.local/bin:$PATH"
-    export AWS_SDK_LOAD_CONFIG=true
-    export NVM_DIR="$HOME/.nvm"
-    export DENO_INSTALL="$HOME/.deno"
-    eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
-    export PATH="$HOME/.luarocks/bin:$PATH"
+  export PATH="$HOME/.raku/bin:$PATH"
+  export PATH="$HOME/.local/bin:$PATH"
+  export AWS_SDK_LOAD_CONFIG=true
+  export NVM_DIR="$HOME/.nvm"
+  export DENO_INSTALL="$HOME/.deno"
+  eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
+  export PATH="$HOME/.luarocks/bin:$PATH"
+  export LUA_PATH='./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;/usr/share/lua/5.1/?.lua;/usr/share/lua/5.1/?/init.lua;/home/rayperry/.luarocks/share/lua/5.1/?.lua;/home/rayperry/.luarocks/share/lua/5.1/?/init.lua'
+  export LUA_CPATH='./?.so;/usr/local/lib/lua/5.1/?.so;/usr/lib/x86_64-linux-gnu/lua/5.1/?.so;/usr/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/loadall.so;/home/rayperry/.luarocks/lib/lua/5.1/?.so'
+  export PATH="/home/rayperry/.luarocks/bin:/home/rayperry/.local/bin:/home/rayperry/.raku/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$PATH"
+  export PLAYDATE_SDK_PATH="$HOME/Desktop/PlaydateSDK-2.0.1"
+  export PATH="$HOME/.nimble/bin:$PATH"
+  export PATH="$PATH:/usr/local/go/bin"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh

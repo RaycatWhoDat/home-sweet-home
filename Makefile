@@ -2,8 +2,8 @@
 
 EMACS = emacs
 ESSENTIALS = coreutils moreutils git zsh python3 luajit luarocks
-PHASE_1 = lua5.3 vim jq miller curl entr gcc ispell
-PHASE_2 = gnutls ncurses ripgrep gpatch
+PHASE_1 = lua5.1 vim jq miller curl gcc ispell
+PHASE_2 = ripgrep
 
 all: tangle
 
