@@ -105,6 +105,25 @@ highest priority packages coming up first.
         "\nconsole.log(%S, %S);"
         (concat (buffer-name) ":" (number-to-string (1+ (current-line))) ":")
         (if (zerop (length message)) "Logpoint!" message))))
+
+  (defun move-ffxiv-screenshots ()
+    "Moves all of the Steam screenshots for FFXIV to the Desktop."
+    (interactive)
+    (let ((old-path "/home/rayperry/.steam/debian-installation/userdata/45746305/760/remote/39210/screenshots/")
+           (new-path "/home/rayperry/Desktop/"))
+      (dolist (file (directory-files old-path nil ".jpg"))
+        (let ((old-full-path (s-concat old-path file))
+               (new-full-path (s-concat new-path file)))
+          (copy-file old-full-path new-full-path)
+          (delete-file old-full-path)
+          (call-process "/usr/bin/convert" nil nil nil
+            new-full-path "-crop" "580x700+64+440" "+repage" (s-concat new-path "crop_" file))))))
+
+  (defun format-for-ffxiv-relay ()
+    "Formats text in the buffer to be ready for relay."
+    (interactive)
+    (beginning-of-buffer)
+    (replace-regexp (rx bol (group (+ (not ">")) ">")) "/fc"))
 #+END_SRC
 
 *** Initialization Postscript
@@ -125,6 +144,8 @@ highest priority packages coming up first.
   (use-packages s f ht ov dash seq stream request el-patch change-inner)
 
   (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro)
+
+  (use-packages eat)
 
   ;; High priority graphical packages.
   (use-packages all-the-icons diminish hyperbole)
