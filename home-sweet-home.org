@@ -145,8 +145,6 @@ highest priority packages coming up first.
 
   (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro)
 
-  (use-packages eat)
-
   ;; High priority graphical packages.
   (use-packages all-the-icons diminish hyperbole)
 
@@ -266,7 +264,6 @@ highest priority packages coming up first.
     nodejs-repl
     ob-async
     ob-http
-    ob-raku
     ob-restclient
     ob-typescript
     olivetti)
