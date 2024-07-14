@@ -143,7 +143,7 @@ highest priority packages coming up first.
   ;; Essential packages.
   (use-packages s f ht ov dash seq stream request el-patch change-inner)
 
-  (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro)
+  (use-packages restart-emacs cl-lib async bind-key paradox crux elmacro run-command)
 
   ;; High priority graphical packages.
   (use-packages all-the-icons diminish hyperbole)
@@ -157,6 +157,13 @@ highest priority packages coming up first.
               (setq company-idle-delay 0
                 company-show-numbers t
                 company-tooltip-align-annotations t)))
+
+  (use-package copilot
+    :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+    :ensure t
+    :config (progn
+              (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+              (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)))
 
   (use-package counsel
     :straight t
@@ -195,6 +202,7 @@ highest priority packages coming up first.
     solidity-mode
     swift-mode
     typescript-mode
+    v-mode
     yaml-mode
     zig-mode)
 
@@ -939,7 +947,7 @@ highest priority packages coming up first.
 
   ;; I prefer Iosevka Term, but it can be replaced with something else.
   ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
-  (let ((font-family "Iosevka Nerd Font Mono"))
+  (let ((font-family "Iosevka Term Nerd Font Mono"))
     (when (find-font (font-spec :name font-family))
       (set-face-attribute 'default nil :family font-family :width 'normal :height 120 :underline nil :weight 'normal)))
 
