@@ -39,15 +39,10 @@ highest priority packages coming up first.
   (require 'org)
   (straight-use-package 'use-package)
   (require 'use-package)
-  
+
   (add-to-list 'load-path (expand-file-name "extra" user-emacs-directory))
 
-  (require 'ansi-color)
-  (defun colorize-compilation-buffer ()
-    (toggle-read-only)
-    (ansi-color-apply-on-region compilation-filter-start (point))
-    (toggle-read-only))
-  (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 #+END_SRC
 
 *** Utilities
@@ -106,11 +101,20 @@ highest priority packages coming up first.
         (concat (buffer-name) ":" (number-to-string (1+ (current-line))) ":")
         (if (zerop (length message)) "Logpoint!" message))))
 
+   (defun insert-content-setting-store-entry (field-key)
+    "Given a string called FIELD-KEY, insert a JavaScript statement that uses FIELD-KEY."
+    (interactive "sField key: ")
+    (insert
+      (format
+        "const %s = msStore.getComposableWindowItem(%S);\n"
+        field-key
+        field-key)))
+
   (defun move-ffxiv-screenshots ()
     "Moves all of the Steam screenshots for FFXIV to the Desktop."
     (interactive)
-    (let ((old-path "/home/rayperry/.steam/debian-installation/userdata/45746305/760/remote/39210/screenshots/")
-           (new-path "/home/rayperry/Desktop/"))
+    (let ((old-path "$HOME/.steam/debian-installation/userdata/45746305/760/remote/39210/screenshots/")
+           (new-path "$HOME/Desktop/"))
       (dolist (file (directory-files old-path nil ".jpg"))
         (let ((old-full-path (s-concat old-path file))
                (new-full-path (s-concat new-path file)))
@@ -362,6 +366,7 @@ highest priority packages coming up first.
   (require 'tsi-json)
 
   (straight-use-package '(odin-mode :type git :host github :repo "mattt-b/odin-mode"))
+  (straight-use-package 'uiua-mode)
 
   ;; Diminish forms.
   (diminish 'jiggle-mode)
@@ -381,6 +386,8 @@ highest priority packages coming up first.
 
   (when (boundp 'org-babel-raku-wrapper)
     (setq loaded-languages (append loaded-languages '(raku))))
+
+  (setq shell-file-name "/bin/zsh")
 
   ;; Build the org-babel-load-languages list.
   ;; This uses `loaded-languages' which should be set.
@@ -518,7 +525,7 @@ highest priority packages coming up first.
     _s_: Sentence
 
     "
-    ("l" insert-logpoint nil)
+    ("l" insert-js-logpoint nil)
     ("p" lorem-ipsum-insert-paragraphs nil)
     ("s" lorem-ipsum-insert-sentences nil))
 
@@ -1038,7 +1045,7 @@ highest priority packages coming up first.
 
   source "$HOME/minimal.zsh"
 
-  eval $(luarocks --lua-dir=/usr/bin --lua-version=5.1 path)
+  eval $(luarocks --lua-dir=/opt/homebrew/Cellar/lua@5.1/5.1.5_8/ --lua-version=5.1 path)
   source "$HOME/.zshenv"
 #+END_SRC
 
@@ -1055,12 +1062,15 @@ highest priority packages coming up first.
   export DENO_INSTALL="$HOME/.deno"
   eval "$(~/.rakubrew/bin/rakubrew init Zsh)"
   export PATH="$HOME/.luarocks/bin:$PATH"
-  export LUA_PATH='./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;/usr/share/lua/5.1/?.lua;/usr/share/lua/5.1/?/init.lua;/home/rayperry/.luarocks/share/lua/5.1/?.lua;/home/rayperry/.luarocks/share/lua/5.1/?/init.lua'
-  export LUA_CPATH='./?.so;/usr/local/lib/lua/5.1/?.so;/usr/lib/x86_64-linux-gnu/lua/5.1/?.so;/usr/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/loadall.so;/home/rayperry/.luarocks/lib/lua/5.1/?.so'
-  export PATH="/home/rayperry/.luarocks/bin:/home/rayperry/.local/bin:/home/rayperry/.raku/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$PATH"
+  export LUA_PATH='./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;/usr/share/lua/5.1/?.lua;/usr/share/lua/5.1/?/init.lua;$HOME/.luarocks/share/lua/5.1/?.lua;$HOME/.luarocks/share/lua/5.1/?/init.lua'
+  export LUA_CPATH='./?.so;/usr/local/lib/lua/5.1/?.so;/usr/lib/x86_64-linux-gnu/lua/5.1/?.so;/usr/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/loadall.so;$HOME/.luarocks/lib/lua/5.1/?.so'
+  export PATH="$HOME/.luarocks/bin:$HOME/.local/bin:$HOME/.raku/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:$PATH"
   export PLAYDATE_SDK_PATH="$HOME/Desktop/PlaydateSDK-2.0.1"
   export PATH="$HOME/.nimble/bin:$PATH"
   export PATH="$PATH:/usr/local/go/bin"
+  export PATH="/opt/homebrew/opt/llvm@14/bin:$PATH"
+  export LDFLAGS="-L/opt/homebrew/opt/llvm@14/lib"
+  export CPPFLAGS="-I/opt/homebrew/opt/llvm@14/include"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/minimal.zsh
