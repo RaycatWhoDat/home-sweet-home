@@ -43,6 +43,9 @@ highest priority packages coming up first.
   (add-to-list 'load-path (expand-file-name "extra" user-emacs-directory))
 
   (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+
+  (add-hook 'eshell-load-hook #'eat-eshell-mode)
+  (add-hook 'eshell-load-hook #'eat-eshell-visual-command-mode)
 #+END_SRC
 
 *** Utilities
@@ -368,6 +371,33 @@ highest priority packages coming up first.
   (straight-use-package '(odin-mode :type git :host github :repo "mattt-b/odin-mode"))
   (straight-use-package 'uiua-mode)
 
+  (use-packages
+    posframe
+    eat
+    dslide
+    symbol-overlay
+    ctrlf
+    marginalia
+    embark
+    consult
+    dape
+    visual-replace)
+
+  (use-package howm
+    :straight t
+    :init
+    (setq howm-directory "~/Desktop/notes")
+    (setq howm-home-directory howm-directory)
+    ;; What format to use for the files?
+    (setq howm-file-name-format "%Y-%m-%d-%H%M%S.org")
+    (setq howm-view-title-header "*")
+    (setq howm-dtime-format "<%Y-%m-%d %a %H:%M>")
+    ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
+    (setq howm-prefix (kbd "C-c ;"))
+    :bind*
+    ;; Conveniently open the Howm menu with "C-c ; ;".
+    ("C-c ; ;" . howm-menu))
+
   ;; Diminish forms.
   (diminish 'jiggle-mode)
   (diminish 'auto-revert-mode)
@@ -388,6 +418,7 @@ highest priority packages coming up first.
     (setq loaded-languages (append loaded-languages '(raku))))
 
   (setq shell-file-name "/bin/zsh")
+  (setq shell-command-switch "-ic")
 
   ;; Build the org-babel-load-languages list.
   ;; This uses `loaded-languages' which should be set.
@@ -665,6 +696,25 @@ highest priority packages coming up first.
     ("k" persp-remove-buffer nil)
     ("r" persp-rename nil)
     ("d" persp-kill nil))
+
+  (defhydra hsh-symbols (:color blue)
+    "
+
+      HSH/Symbols
+      ===========
+
+        _t_: Toggle Mode 
+        _i_: Insert Overlays
+        _r_: Remove All Overlays
+        _p_: Previous Symbol
+        _n_: Next Symbol
+
+      "
+    ("t" symbol-overlay-mode nil)
+    ("i" symbol-overlay-put nil)
+    ("r" symbol-overlay-remove-all nil)
+    ("p" symbol-overlay-jump-prev nil)
+    ("n" symbol-overlay-jump-next nil))
 #+END_SRC
 
 *** HSH Leader Hydra
@@ -674,7 +724,7 @@ highest priority packages coming up first.
 
     Home Sweet Home
     ===============
-    _a_: [Applications]      _g_: [Git]              _p_: [Perspective]
+    _a_: [Applications]      _g_: [Git]              _p_: [Perspective]          _y_: [Symbols]
     _b_: [Buffers]           _j_: [Jump To]          _q_: [Quit]
     _c_: [Config]            _i_: [Insertion]        _r_: [Registers/Resume]
     _e_: [Eval]              _n_: [Narrowing]        _s_: [Search]
@@ -699,6 +749,7 @@ highest priority packages coming up first.
     ("r" hsh-registers-resume/body nil)
     ("s" hsh-search/body nil)
     ("w" hsh-windows/body nil)
+    ("y" hsh-symbols/body nil)
     ("C-;" counsel-M-x nil)
     ("C-g" (message "Cancelled HSH.") nil :exit t)
     ("-" eshell-toggle nil)
@@ -954,9 +1005,9 @@ highest priority packages coming up first.
 
   ;; I prefer Iosevka Term, but it can be replaced with something else.
   ;; Recommended alternatives: mononoki, Pragmata Pro, Deja Vu Sans Mono
-  (let ((font-family "Iosevka Term Nerd Font Mono"))
+  (let ((font-family "IosevkaTerm Nerd Font Mono"))
     (when (find-font (font-spec :name font-family))
-      (set-face-attribute 'default nil :family font-family :width 'normal :height 120 :underline nil :weight 'normal)))
+      (set-face-attribute 'default nil :family font-family :width 'normal :height 160 :underline nil :weight 'normal)))
 
   (setq comint-scroll-to-bottom-on-input t
     comint-scroll-to-bottom-on-output nil
@@ -1045,8 +1096,13 @@ highest priority packages coming up first.
 
   source "$HOME/minimal.zsh"
 
-  eval $(luarocks --lua-dir=/opt/homebrew/Cellar/lua@5.1/5.1.5_8/ --lua-version=5.1 path)
+  [ -d "/opt/homebrew/Cellar/lua@5.1/5.1.5_8/" ] && eval $(luarocks --lua-dir=/opt/homebrew/Cellar/lua@5.1/5.1.5_8/ --lua-version=5.1 path)
   source "$HOME/.zshenv"
+
+  alias love="/Applications/love.app/Contents/MacOS/love"
+  alias love-build="/Applications/love-build.app/Contents/MacOS/love"
+  [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+  source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 #+END_SRC
 
 #+BEGIN_SRC shell :tangle ~/.zshenv
