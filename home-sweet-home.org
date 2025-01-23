@@ -100,7 +100,7 @@ highest priority packages coming up first.
     (interactive "sOptional message: ")
     (insert
       (format
-        "\nconsole.log(%S, %S);"
+        "\nconsole.log(%S, %s);"
         (concat (buffer-name) ":" (number-to-string (1+ (current-line))) ":")
         (if (zerop (length message)) "Logpoint!" message))))
 
